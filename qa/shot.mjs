@@ -8,9 +8,21 @@ import { mkdir } from "node:fs/promises"
 const BASE = (process.env.QA_URL ?? "http://localhost:3300").replace(/\/$/, "")
 // Both scenes get shot: the cover is perspective with a sun, the article is orthographic with a
 // cut, and a regression in either one is invisible from the other page.
+/*
+ * Every article, not a sample.
+ *
+ * This covered the cover and one article, so an overflow that only existed on "The
+ * ninety-centimetre lie" — eleven swatches and a fixed label column demanding 408px on a 393px
+ * phone — passed the suite while pushing the whole page sideways. A check that looks at two of
+ * six pages reports on two of six pages.
+ */
 const PAGES = [
   { path: "/", slug: "cover" },
-  { path: "/what-the-fins-are-for", slug: "article" },
+  { path: "/what-the-fins-are-for", slug: "fins" },
+  { path: "/the-ninety-centimetre-lie", slug: "plinth" },
+  { path: "/concrete-remembers", slug: "concrete" },
+  { path: "/drawing-the-datum", slug: "datum" },
+  { path: "/a-thermal-argument", slug: "thermal" },
 ]
 await mkdir("qa/out", { recursive: true })
 
@@ -50,9 +62,21 @@ for (const view of views) {
   page.on("pageerror", (e) => problems.push(`${label}: ${e.message}`))
 
   await page.goto(BASE + path, { waitUntil: "networkidle" })
-  await page.locator("canvas").first().waitFor({ timeout: 20_000 })
-  // Give the scene a few frames: a canvas measured on mount is always black.
-  await page.waitForTimeout(1800)
+
+  /*
+   * Not every page has WebGL on it any more. Three of the articles are drawn entirely in SVG,
+   * and waiting unconditionally for a canvas turned "this page has no 3D" into a 20-second
+   * timeout and a failed run. A page that has one must still paint it; a page that has none is
+   * not a failure, and is still checked for console errors and overflow below.
+   */
+  const hasCanvas = (await page.locator("canvas").count()) > 0
+  if (hasCanvas) {
+    await page.locator("canvas").first().waitFor({ timeout: 20_000 })
+    // Give the scene a few frames: a canvas measured on mount is always black.
+    await page.waitForTimeout(1800)
+  } else {
+    await page.waitForTimeout(600)
+  }
 
   /*
    * Every canvas is sampled, not just the first.
@@ -63,7 +87,9 @@ for (const view of views) {
    * whose flatness is the design. So: every canvas must be PAINTED, and at least one on the page
    * must be RICH, which still catches a shader that failed to compile or a scene left unlit.
    */
-  const lit = await page.evaluate(async () => {
+  const lit = !hasCanvas
+    ? null
+    : await page.evaluate(async () => {
     const all = [...document.querySelectorAll("canvas")]
     if (all.length === 0) return { ok: false, reason: "no canvas" }
     const measure = async (el) => {
@@ -93,9 +119,11 @@ for (const view of views) {
     const canvases = []
     for (const el of all) canvases.push(await measure(el))
     return { ok: true, canvases }
-  })
+      })
 
-  if (!lit.ok) {
+  if (lit === null) {
+    // Drawn in SVG. Nothing to sample, and nothing wrong.
+  } else if (!lit.ok) {
     problems.push(`${label}: ${lit.reason}`)
   } else {
     lit.canvases.forEach((c, i) => {
@@ -117,7 +145,8 @@ for (const view of views) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)
   if (overflow) problems.push(`${label}: horizontal overflow`)
 
-  console.log(`${label.padEnd(18)} ${view.width}x${view.height} — ${lit.canvases.map((c) => `${c.bright}/${c.tones}t`).join("  ")}`)
+  const reading = lit?.canvases?.map((c) => `${c.bright}/${c.tones}t`).join("  ") ?? "svg only"
+  console.log(`${label.padEnd(18)} ${view.width}x${view.height} — ${reading}`)
   await context.close()
 }
 

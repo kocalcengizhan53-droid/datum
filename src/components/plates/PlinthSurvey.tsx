@@ -117,9 +117,19 @@ export function PlinthSurvey({ plate }: { plate: number }) {
             {STAGES.map((stage) => {
               const rows = PLINTHS.filter((p) => p.earliest === stage)
               return (
-                <div key={stage} className="grid grid-cols-[11rem_1fr_2rem] items-center gap-3">
-                  <span className="text-fg-faint text-xs">{STAGE_LABEL[stage]}</span>
-                  <span className="flex gap-1">
+                /*
+                 * The label drops to its own line below sm. Held in a fixed 11rem column it
+                 * forced a minimum of 408px — eleven swatches plus the label plus the count —
+                 * against a 393px phone, and pushed the whole article sideways.
+                 */
+                <div
+                  key={stage}
+                  className="grid grid-cols-[1fr_2rem] items-center gap-x-3 gap-y-1 sm:grid-cols-[11rem_1fr_2rem]"
+                >
+                  <span className="text-fg-faint col-span-2 text-xs sm:col-span-1">
+                    {STAGE_LABEL[stage]}
+                  </span>
+                  <span className="flex flex-wrap gap-1">
                     {rows.map((p) => (
                       <span
                         key={p.id}
@@ -133,8 +143,8 @@ export function PlinthSurvey({ plate }: { plate: number }) {
             })}
           </div>
           {/* The row the article says is empty in all eleven cases. Drawn empty. */}
-          <div className="grid grid-cols-[11rem_1fr_2rem] items-center gap-3 pt-3">
-            <span className="text-fg-faint text-xs">A recorded reason</span>
+          <div className="grid grid-cols-[1fr_2rem] items-center gap-x-3 gap-y-1 pt-3 sm:grid-cols-[11rem_1fr_2rem]">
+            <span className="text-fg-faint col-span-2 text-xs sm:col-span-1">A recorded reason</span>
             <span className="bg-rule block h-px" />
             <span className="instrument tnum text-right">0</span>
           </div>
