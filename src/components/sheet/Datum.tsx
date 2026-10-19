@@ -11,8 +11,8 @@ export function Datum({ label = "±0.000", note }: { label?: string; note?: stri
     <div className="relative" aria-hidden="true">
       <div className="bg-rule-strong draw-x h-px w-full origin-left" />
       <div className="flex items-start justify-between pt-1.5">
-        <span className="mark tnum text-sun-ink">{label}</span>
-        {note ? <span className="mark">{note}</span> : null}
+        <span className="instrument tnum text-sun-ink">{label}</span>
+        {note ? <span className="instrument">{note}</span> : null}
       </div>
     </div>
   )
@@ -31,7 +31,7 @@ export function Dimension({ value, caption }: { value: string; caption: string }
           {value}
         </span>
       </div>
-      <p className="mark pt-1">{caption}</p>
+      <p className="instrument pt-1">{caption}</p>
     </div>
   )
 }

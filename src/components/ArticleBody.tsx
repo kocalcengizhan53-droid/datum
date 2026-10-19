@@ -22,7 +22,7 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
   const plates = blocks.flatMap((block, i) => (block.type === "figure" ? [i] : []))
 
   return (
-    <div className="max-w-[62ch]">
+    <div className="prose-fig max-w-[62ch]">
       {blocks.map((block, i) => {
         switch (block.type) {
           case "h":

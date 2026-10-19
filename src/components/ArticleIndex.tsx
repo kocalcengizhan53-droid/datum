@@ -14,7 +14,7 @@ export function ArticleIndex() {
                 className="group grid gap-x-10 gap-y-3 py-8 md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]"
             >
                 <div className="flex h-fit items-baseline gap-4">
-                  <span className="mark tnum">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="instrument tnum">{String(index + 1).padStart(2, "0")}</span>
                   <span className="mark">{article.kicker}</span>
                   {/* A rule that draws itself on hover, left to right. */}
                   <span
@@ -28,7 +28,7 @@ export function ArticleIndex() {
                       {article.title}
                     </h2>
                   </ViewTransition>
-                  <p className="text-fg-muted mt-3 text-lg text-pretty">{article.standfirst}</p>
+                  <p className="text-fg-muted prose-fig mt-3 text-lg text-pretty">{article.standfirst}</p>
                   <p className="mark mt-4">
                     {article.author} · {article.readingMinutes} min
                   </p>

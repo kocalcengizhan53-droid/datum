@@ -7,7 +7,7 @@ export function Masthead() {
       <span className="mark hidden sm:inline">
         architecture · the built environment
       </span>
-      <span className="mark ml-auto tnum">
+      <span className="instrument ml-auto tnum">
         №{ISSUE.number} / {ISSUE.season}
       </span>
     </header>

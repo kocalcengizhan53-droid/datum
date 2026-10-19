@@ -86,6 +86,14 @@
   --radius-sm: var(--radius);
   --radius-md: calc(var(--radius) * 2);
 
+  /*
+   * Two voices, because the journal's argument is the gap between the drawing and the prose.
+   * A drawing is annotated in mono; a journal is set in a serif. Literata was chosen on a
+   * metric, not a taste test: its x-height is 0.507 against Geist's 0.530, so the whole type
+   * scale survives the swap, where Source Serif 4 at 0.475 would have forced twelve tokens to
+   * be re-tuned including the cover clamp.
+   */
+  --font-text: var(--font-datum-text), Iowan Old Style, Palatino, Georgia, serif;
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
 
@@ -93,6 +101,15 @@
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: 1.4;
   --text-2xs--letter-spacing: 0.12em;
+  /*
+   * Small caps are not uppercase at the same size. Literata's are 0.557 em against the 0.710 em
+   * cap height of the mono uppercase they replace, so setting a label in the serif at the old
+   * 0.6875rem would render it 21% smaller — grey, over-tracked, modulated hairlines at 6px on
+   * near-black. This token holds the optical size instead.
+   */
+  --text-label: 0.875rem;
+  --text-label--line-height: 1.4;
+  --text-label--letter-spacing: 0.06em;
   --text-xs: 0.75rem;
   --text-xs--line-height: 1.5;
   --text-sm: 0.8125rem;
@@ -127,16 +144,44 @@
   html {
     scroll-behavior: smooth;
   }
+  /*
+   * Lining is explicit, and it has to be: the prose now asks for old-style figures, and these
+   * are the instrument readings — the hour, the cut coordinate, plate and issue numbers. Old
+   * style has descenders on 3, 4, 5, 7 and 9, which in a numeric column reads as a rendering
+   * bug rather than a decision.
+   */
   .tnum {
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums lining-nums;
   }
-  /* The running label: issue numbers, section marks, credits. */
+  /*
+   * The editorial label: kickers, bylines, running heads, nav. True small caps in the text face
+   * rather than tracked-out uppercase mono — tracking drops to 0.06em because small caps carry
+   * their own fit, and the colour lifts a step because a modulated serif at this size needs it.
+   */
   .mark {
+    font-family: var(--font-text);
+    font-size: var(--text-label);
+    font-variant-caps: all-small-caps;
+    font-variant-numeric: lining-nums;
+    letter-spacing: 0.06em;
+    color: var(--fg-muted);
+  }
+
+  /*
+   * The instrument voice: anything that is a reading off a drawing — the hour, the cut
+   * coordinate, plate numbers, the issue number. Mono, uppercase, tracked, and quiet.
+   */
+  .instrument {
     font-family: var(--font-mono);
     font-size: var(--text-2xs);
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--fg-faint);
+  }
+
+  /* Prose takes old-style figures: they belong in a sentence, lining figures belong in a table. */
+  .prose-fig {
+    font-variant-numeric: oldstyle-nums proportional-nums;
   }
   :focus-visible {
     outline: 2px solid var(--sun);
@@ -152,10 +197,19 @@
 body {
   background-color: var(--bg);
   color: var(--fg);
-  font-family: var(--font-sans);
-  font-size: 0.9375rem;
-  line-height: 1.7;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  line-height: 1.72;
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Headlines and the cover line stay in the sans: the display voice is not the reading voice. */
+h1,
+h2,
+h3,
+.display {
+  font-family: var(--font-sans);
 }
 
 /* Film grain over the whole page: a flat dark ground looks like a screen, not a room. */

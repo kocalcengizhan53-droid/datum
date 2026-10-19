@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build",
-    "qa": "node qa/shot.mjs"
+    "qa": "node qa/shot.mjs && node qa/invisible.mjs && node qa/type.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

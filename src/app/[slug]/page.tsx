@@ -35,7 +35,7 @@ export default async function ArticlePage({ params }: PageProps<"/[slug]">) {
 
         <header className="border-rule grid gap-x-10 gap-y-6 border-b py-12 md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
           <div className="flex h-fit items-baseline gap-4">
-            <span className="mark tnum">{String(index + 1).padStart(2, "0")}</span>
+            <span className="instrument tnum">{String(index + 1).padStart(2, "0")}</span>
             <span className="mark">{article.kicker}</span>
           </div>
           <div className="max-w-[24ch]">
@@ -57,7 +57,7 @@ export default async function ArticlePage({ params }: PageProps<"/[slug]">) {
             <p className="mark mt-1 tnum">
               {article.readingMinutes} min · {article.published}
             </p>
-            <p className="text-fg-muted mt-6 max-w-[34ch] text-base text-pretty">
+            <p className="text-fg-muted prose-fig mt-6 max-w-[34ch] text-base text-pretty">
               {article.standfirst}
             </p>
           </aside>

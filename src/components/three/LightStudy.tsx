@@ -255,7 +255,7 @@ export function LightStudy() {
         className="pointer-events-none absolute right-6 bottom-6 left-6 sm:right-10 sm:left-10"
       >
         <div className="flex items-end justify-between pb-2">
-          <span className="mark">drag anywhere · solar study</span>
+          <span className="instrument">drag anywhere · solar study</span>
           <span className="tnum text-sun-ink font-mono text-xs">
             <span ref={readout}>08:24</span>
           </span>
