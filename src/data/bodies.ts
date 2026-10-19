@@ -15,7 +15,7 @@ export const BODIES: Record<string, readonly Block[]> = {
   "what-the-fins-are-for": [
     {
       type: "p",
-      text: "The fins on the south elevation of the building in this issue's cover study are 520 millimetres deep and spaced at 820 centres. Nobody chose those numbers for how they look. They are the output of a cooling load calculation run in the second month of the project, before the practice had drawn an elevation at all, and they are the reason the plant room is one storey rather than two.",
+      text: "The fins on the south elevation of the building in this issue's cover study are {{finDepth}} deep and spaced at {{finPitch}} centres. Nobody chose those numbers for how they look. They are the output of a cooling load calculation run in the second month of the project, before the practice had drawn an elevation at all, and they are the reason the plant room is one storey rather than two.",
     },
     {
       type: "p",
@@ -39,7 +39,7 @@ export const BODIES: Record<string, readonly Block[]> = {
     },
     {
       type: "p",
-      text: "There is a second calculation that almost nobody runs, which is what the fins cost to clean. The practice that designed the cover study specified an access rail at the head of each bay, and it was value-engineered out in the final package. Four years in, the south elevation is grey at the top and pale at the bottom, in a gradient you can read from the street, and it is the most honest thing about the building.",
+      text: "There is a second calculation that almost nobody runs, which is what the fins cost to clean. The practice that designed the cover study specified an access rail at the head of each of the {{finCount}} bays, and it was value-engineered out in the final package. Four years in, the south elevation is grey at the top and pale at the bottom, in a gradient you can read from the street, and it is the most honest thing about the building.",
     },
     { type: "h", text: "What the drawings do not say" },
     {
@@ -59,7 +59,7 @@ export const BODIES: Record<string, readonly Block[]> = {
   "the-ninety-centimetre-lie": [
     {
       type: "p",
-      text: "Eleven civic buildings, all completed since 2015, all on a plinth. The heights run from 600 millimetres to 1.4 metres and cluster hard at 900. When we asked the architects why, nine said some version of presence, two said drainage, and none could produce a drawing where the decision was made.",
+      text: "Eleven civic buildings, all completed since 2015, all on a plinth. The heights run from 600 millimetres to 1.4 metres and cluster hard at {{plinthHeight}}. When we asked the architects why, nine said some version of presence, two said drainage, and none could produce a drawing where the decision was made.",
     },
     {
       type: "p",
@@ -69,7 +69,7 @@ export const BODIES: Record<string, readonly Block[]> = {
       type: "figure",
       kind: "section",
       caption:
-        "The cover study carries the same 900. Cut through it and the plinth stops being a base and becomes what it is: a floor level that the ground has to climb to.",
+        "The cover study carries the same {{plinthHeight}}. Cut through it and the plinth stops being a base and becomes what it is: a floor level that the ground has to climb to.",
     },
     {
       type: "pull",
@@ -77,7 +77,7 @@ export const BODIES: Record<string, readonly Block[]> = {
     },
     {
       type: "p",
-      text: "None of this is an argument against raising a floor. There are sites where 900 millimetres is a flood level and buildings where the plinth is the only thing holding a terrible street together. It is an argument against drawing it first and justifying it afterwards, which is what the survey found in every case where the practice still had the early models.",
+      text: "None of this is an argument against raising a floor. There are sites where {{plinthHeight}} is a flood level and buildings where the plinth is the only thing holding a terrible street together. It is an argument against drawing it first and justifying it afterwards, which is what the survey found in every case where the practice still had the early models.",
     },
   ],
 
@@ -103,7 +103,7 @@ export const BODIES: Record<string, readonly Block[]> = {
   "drawing-the-datum": [
     {
       type: "p",
-      text: "Before anything on a site can be measured, something has to be declared level. The datum is a fiction agreed between a surveyor and a drawing, and every dimension on every sheet afterwards is relative to it. Choosing where to put it is the first design decision on any project, and it is usually made by whoever opens the file.",
+      text: "Before anything on a site can be measured, something has to be declared level — on the cover study, {{plinthHeight}} below the plinth top. The datum is a fiction agreed between a surveyor and a drawing, and every dimension on every sheet afterwards is relative to it. Choosing where to put it is the first design decision on any project, and it is usually made by whoever opens the file.",
     },
     {
       type: "p",
@@ -113,7 +113,7 @@ export const BODIES: Record<string, readonly Block[]> = {
       type: "figure",
       kind: "section",
       caption:
-        "Everything in the cover study is measured from a line 900 millimetres below the plinth top. Move the cut and watch what the line does to the reading of the ground.",
+        "Everything in the cover study is measured from a line {{plinthHeight}} below the plinth top. Move the cut and watch what the line does to the reading of the ground.",
     },
     {
       type: "p",

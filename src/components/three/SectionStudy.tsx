@@ -94,7 +94,7 @@ function Scene({ cut }: { cut: React.RefObject<number> }) {
   )
 }
 
-export function SectionStudy({ caption, plate }: { caption: string; plate: number }) {
+export function SectionStudy({ caption, plate }: { caption: React.ReactNode; plate: number }) {
   const cut = useRef(START)
   const readout = useRef<HTMLSpanElement>(null)
   const track = useRef<HTMLDivElement>(null)

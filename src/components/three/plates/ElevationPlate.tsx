@@ -41,7 +41,6 @@ const tower = MASSING.find((v) => v.id === "tower")!
 const plinthTop = plinth.position[1] + plinth.size[1] / 2
 const towerTop = tower.position[1] + tower.size[1] / 2
 const finPitch = FINS[1].position[0] - FINS[0].position[0]
-const finTop = FINS[0].position[1] + FINS[0].size[1] / 2
 const buildingLeft = plinth.position[0] - plinth.size[0] / 2
 const buildingRight = tower.position[0] + tower.size[0] / 2
 /*

@@ -22,7 +22,7 @@ export function Datum({ label = "±0.000", note }: { label?: string; note?: stri
  * A dimension: the line extends from the margin and the figure arrives at the end of it. Used
  * wherever the prose states a measured quantity that a plate also draws.
  */
-export function Dimension({ value, caption }: { value: string; caption: string }) {
+export function Dimension({ value, caption }: { value: string; caption: React.ReactNode }) {
   return (
     <div className="py-1">
       <div className="flex items-center gap-2">

@@ -14,7 +14,7 @@ export function PlateFrame({
 }: {
   plate: number
   type: string
-  caption: string
+  caption: React.ReactNode
   /** Only present when the plate is interactive. A locked drawing says nothing. */
   hint?: string
   children: React.ReactNode

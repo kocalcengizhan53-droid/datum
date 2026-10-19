@@ -183,6 +183,64 @@
   .prose-fig {
     font-variant-numeric: oldstyle-nums proportional-nums;
   }
+
+  /*
+   * A measured quantity inside a sentence, set as a dimension rather than as a word.
+   *
+   * The figure switches to lining tabular numerals against the old-style figures of the prose
+   * around it, the unit drops to true small caps, and the pair sits on a rule that terminates in
+   * two short extension lines — which is what a dimension looks like on a drawing and, more to
+   * the point, what a link does not. An underline on its own was indistinguishable from the link
+   * style: same colour, same hairline, differing only in opacity. The ticks are the tell.
+   */
+  .dim {
+    position: relative;
+    white-space: nowrap;
+    padding-inline: 0.22em;
+    font-variant-numeric: lining-nums tabular-nums;
+    /* The rule is a background rather than a border so that its width can be drawn; a border
+       has no animatable extent. The default state is fully drawn, so the figure is legible
+       wherever the animation does not run. */
+    background-image: linear-gradient(var(--rule-strong), var(--rule-strong));
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    background-size: 100% 1px;
+  }
+  .dim::before,
+  .dim::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    width: 1px;
+    height: 0.42em;
+    background: var(--rule-strong);
+  }
+  .dim::before {
+    left: 0;
+  }
+  .dim::after {
+    right: 0;
+  }
+  .dim::before,
+  .dim::after {
+    transform-origin: bottom;
+  }
+  /*
+   * A count is not a dimension. It gets the drawing's figures and its rule, because it is read
+   * off the model like everything else here, but not the extension ticks — those mean "measured
+   * between two points", and fourteen bays has no extent.
+   */
+  .dim-count::before,
+  .dim-count::after {
+    content: none;
+  }
+  .dim-unit {
+    margin-left: 0.22em;
+    font-variant-caps: all-small-caps;
+    font-variant-numeric: normal;
+    letter-spacing: 0.04em;
+    color: var(--fg-muted);
+  }
   :focus-visible {
     outline: 2px solid var(--sun);
     outline-offset: 3px;
@@ -254,6 +312,22 @@ h3,
       animation-timeline: view();
       animation-range: entry 10% cover 24%;
     }
+    /*
+     * A dimension in the running text draws like one on a sheet: the rule runs out under the
+     * figure, then the extension ticks rise at each end. Short and late in the range, because a
+     * paragraph holds several and a slow draw on each would turn reading into waiting.
+     */
+    .dim {
+      animation: dim-rule 420ms var(--ease-out-expo) both;
+      animation-timeline: view();
+      animation-range: entry 8% cover 22%;
+    }
+    .dim::before,
+    .dim::after {
+      animation: dim-tick 260ms var(--ease-out-expo) both;
+      animation-timeline: view();
+      animation-range: entry 18% cover 26%;
+    }
     /* A section mark drops down its leader. */
     .draw-y {
       animation: draw-y 700ms var(--ease-out-expo) both;
@@ -288,6 +362,22 @@ h3,
   }
 }
 
+@keyframes dim-rule {
+  from {
+    background-size: 0% 1px;
+  }
+  to {
+    background-size: 100% 1px;
+  }
+}
+@keyframes dim-tick {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
 @keyframes dim-label {
   from {
     opacity: 0;
