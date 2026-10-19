@@ -6,6 +6,9 @@ import type { Block } from "@/data/bodies"
 const SectionStudy = dynamic(() =>
   import("@/components/three/SectionStudy").then((m) => m.SectionStudy),
 )
+const ElevationPlate = dynamic(() =>
+  import("@/components/three/plates/ElevationPlate").then((m) => m.ElevationPlate),
+)
 
 /**
  * The body, set as a sheet rather than wrapped in an effect.
@@ -55,10 +58,14 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
           case "dimension":
             return <Dimension key={i} value={block.value} caption={block.caption} />
 
-          case "figure":
-            return (
-              <SectionStudy key={i} caption={block.caption} plate={plates.indexOf(i) + 1} />
+          case "figure": {
+            const number = plates.indexOf(i) + 1
+            return block.kind === "elevation" ? (
+              <ElevationPlate key={i} plate={number} />
+            ) : (
+              <SectionStudy key={i} caption={block.caption} plate={number} />
             )
+          }
 
           default:
             return (

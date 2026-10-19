@@ -15,6 +15,7 @@ import { Canvas, useFrame } from "@react-three/fiber"
 import { useCallback, useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 
+import { PlateFrame } from "@/components/three/plates/PlateFrame"
 import { FINS, MASSING } from "@/lib/massing"
 
 /**
@@ -117,7 +118,7 @@ export function SectionStudy({ caption, plate }: { caption: string; plate: numbe
     MIN_X + ((clientX - box.left) / box.width) * (MAX_X - MIN_X)
 
   return (
-    <figure className="border-rule bg-bg-deep my-10 overflow-hidden rounded-md border">
+    <PlateFrame plate={plate} type="section · the cut moves" caption={caption} hint="drag">
       <div
         className="relative aspect-[16/9] w-full touch-none"
         onPointerDown={(e) => {
@@ -164,13 +165,6 @@ export function SectionStudy({ caption, plate }: { caption: string; plate: numbe
           </div>
         </div>
       </div>
-      {/* Numbered as a plate, cited the way a drawing set is, not captioned like a photo. */}
-      <figcaption className="border-rule flex gap-4 border-t px-5 py-3">
-        <span className="instrument tnum text-sun-ink shrink-0">
-          Plate {String(plate).padStart(2, "0")}
-        </span>
-        <span className="text-fg-faint text-sm">{caption}</span>
-      </figcaption>
-    </figure>
+    </PlateFrame>
   )
 }

@@ -7,7 +7,7 @@ export type Block =
   | { type: "p"; text: string }
   | { type: "h"; text: string }
   | { type: "pull"; text: string }
-  | { type: "figure"; kind: "section"; caption: string }
+  | { type: "figure"; kind: "section" | "elevation"; caption: string }
   | { type: "dimension"; value: string; caption: string }
   | { type: "note"; text: string }
 
@@ -15,7 +15,7 @@ export const BODIES: Record<string, readonly Block[]> = {
   "what-the-fins-are-for": [
     {
       type: "p",
-      text: "The fins on the south elevation of the building in this issue's cover study are 140 millimetres deep and spaced at 820 centres. Nobody chose those numbers for how they look. They are the output of a cooling load calculation run in the second month of the project, before the practice had drawn an elevation at all, and they are the reason the plant room is one storey rather than two.",
+      text: "The fins on the south elevation of the building in this issue's cover study are 520 millimetres deep and spaced at 820 centres. Nobody chose those numbers for how they look. They are the output of a cooling load calculation run in the second month of the project, before the practice had drawn an elevation at all, and they are the reason the plant room is one storey rather than two.",
     },
     {
       type: "p",
@@ -26,6 +26,7 @@ export const BODIES: Record<string, readonly Block[]> = {
       type: "p",
       text: "Work it the other way and the absurdity is obvious. Draw a beautiful screen, then ask what it does at the summer solstice, and you will find it either shades the glass at noon and blinds the room at five, or it does neither and costs the same. The section is where the answer lives, because the section is the only drawing that shows the sun arriving at an angle.",
     },
+    { type: "figure", kind: "elevation", caption: "" },
     {
       type: "figure",
       kind: "section",

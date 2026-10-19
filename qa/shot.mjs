@@ -54,37 +54,56 @@ for (const view of views) {
   // Give the scene a few frames: a canvas measured on mount is always black.
   await page.waitForTimeout(1800)
 
+  /*
+   * Every canvas is sampled, not just the first.
+   *
+   * The article now carries a drawing SET, and the plates are deliberately not alike: an
+   * elevation is flat-lit on purpose — that is what an elevation is — while the section and the
+   * cover are rendered. Checking only the first canvas reported "scene is flat" for a plate
+   * whose flatness is the design. So: every canvas must be PAINTED, and at least one on the page
+   * must be RICH, which still catches a shader that failed to compile or a scene left unlit.
+   */
   const lit = await page.evaluate(async () => {
-    const el = document.querySelector("canvas")
-    if (!el) return { ok: false, reason: "no canvas" }
-    const shot = await new Promise((resolve) => {
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve(el.toDataURL("image/png"))))
-    })
-    const img = new Image()
-    await new Promise((r) => {
-      img.onload = r
-      img.src = shot
-    })
-    const c = document.createElement("canvas")
-    c.width = 160
-    c.height = 100
-    const ctx = c.getContext("2d")
-    ctx.drawImage(img, 0, 0, 160, 100)
-    const d = ctx.getImageData(0, 0, 160, 100).data
-    let bright = 0
-    let distinct = new Set()
-    for (let i = 0; i < d.length; i += 4) {
-      const v = (d[i] + d[i + 1] + d[i + 2]) / 3
-      if (v > 60) bright++
-      distinct.add(`${d[i] >> 4}-${d[i + 1] >> 4}-${d[i + 2] >> 4}`)
+    const all = [...document.querySelectorAll("canvas")]
+    if (all.length === 0) return { ok: false, reason: "no canvas" }
+    const measure = async (el) => {
+      const shot = await new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve(el.toDataURL("image/png"))))
+      })
+      const img = new Image()
+      await new Promise((r) => {
+        img.onload = r
+        img.src = shot
+      })
+      const c = document.createElement("canvas")
+      c.width = 160
+      c.height = 100
+      const ctx = c.getContext("2d")
+      ctx.drawImage(img, 0, 0, 160, 100)
+      const d = ctx.getImageData(0, 0, 160, 100).data
+      let bright = 0
+      const distinct = new Set()
+      for (let i = 0; i < d.length; i += 4) {
+        const v = (d[i] + d[i + 1] + d[i + 2]) / 3
+        if (v > 60) bright++
+        distinct.add(`${d[i] >> 4}-${d[i + 1] >> 4}-${d[i + 2] >> 4}`)
+      }
+      return { bright, tones: distinct.size }
     }
-    return { ok: true, bright, tones: distinct.size }
+    const canvases = []
+    for (const el of all) canvases.push(await measure(el))
+    return { ok: true, canvases }
   })
 
-  if (!lit.ok) problems.push(`${label}: ${lit.reason}`)
-  // A scene that compiled but is unlit looks like a dark rectangle; both numbers catch that.
-  else if (lit.bright < 40) problems.push(`${label}: scene is dark (${lit.bright} lit samples)`)
-  else if (lit.tones < 24) problems.push(`${label}: scene is flat (${lit.tones} tones)`)
+  if (!lit.ok) {
+    problems.push(`${label}: ${lit.reason}`)
+  } else {
+    lit.canvases.forEach((c, i) => {
+      if (c.bright < 40) problems.push(`${label}: canvas ${i} is dark (${c.bright} lit samples)`)
+    })
+    const richest = Math.max(...lit.canvases.map((c) => c.tones))
+    if (richest < 24) problems.push(`${label}: no canvas on the page is lit (best ${richest} tones)`)
+  }
 
   await page.screenshot({ path: `qa/out/${slug}-${view.name}.png`, fullPage: true })
 
@@ -98,7 +117,7 @@ for (const view of views) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)
   if (overflow) problems.push(`${label}: horizontal overflow`)
 
-  console.log(`${label.padEnd(18)} ${view.width}x${view.height} — lit ${lit.bright}, tones ${lit.tones}`)
+  console.log(`${label.padEnd(18)} ${view.width}x${view.height} — ${lit.canvases.map((c) => `${c.bright}/${c.tones}t`).join("  ")}`)
   await context.close()
 }
 
