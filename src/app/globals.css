@@ -1,26 +1,181 @@
+/*
+ * Design tokens — Datum, a journal of architecture and the built environment.
+ *
+ * The art direction is the brief: this publication has no photography. Every illustration is a
+ * live three-dimensional scene, lit and shadowed in the browser, so the palette is built for
+ * raking light on concrete rather than for a content page — a deep charcoal ground, one warm
+ * sun, one cold sky, and type that can carry a cover.
+ */
 @import "tailwindcss";
 
+@theme {
+  --color-*: initial;
+}
+
+/* 1. Primitives ----------------------------------------------------------------------- */
+@theme static {
+  --color-white: oklch(1 0 0);
+  --color-black: oklch(0 0 0);
+
+  /* Concrete, warmed very slightly so it never reads as digital grey. */
+  --color-stone-950: oklch(0.142 0.004 85);
+  --color-stone-925: oklch(0.172 0.005 83);
+  --color-stone-900: oklch(0.203 0.005 82);
+  --color-stone-850: oklch(0.247 0.006 81);
+  --color-stone-800: oklch(0.295 0.006 80);
+  --color-stone-700: oklch(0.382 0.007 80);
+  --color-stone-600: oklch(0.478 0.007 79);
+  --color-stone-500: oklch(0.582 0.007 79);
+  --color-stone-400: oklch(0.69 0.006 78);
+  --color-stone-300: oklch(0.79 0.005 78);
+  --color-stone-200: oklch(0.876 0.004 78);
+  --color-stone-100: oklch(0.941 0.003 78);
+  --color-stone-50: oklch(0.973 0.002 78);
+
+  /* Low sun on a south elevation. The accent is light, not brand colour. */
+  --color-sun-200: oklch(0.93 0.07 72);
+  --color-sun-300: oklch(0.88 0.11 70);
+  --color-sun-400: oklch(0.82 0.145 66);
+  --color-sun-500: oklch(0.74 0.155 60);
+  --color-sun-600: oklch(0.63 0.145 55);
+
+  /* The sky side of the same light: everything the sun does not reach. */
+  --color-sky-400: oklch(0.72 0.075 245);
+  --color-sky-600: oklch(0.52 0.075 248);
+  --color-sky-800: oklch(0.34 0.055 250);
+}
+
+/* 2. Semantic roles ------------------------------------------------------------------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+
+  --bg: var(--color-stone-950);
+  --bg-deep: oklch(0.11 0.004 86);
+  --surface: var(--color-stone-925);
+  --surface-raised: var(--color-stone-900);
+
+  --fg: var(--color-stone-100);
+  --fg-muted: var(--color-stone-400);
+  --fg-faint: var(--color-stone-500);
+
+  --rule: oklch(1 0 0 / 0.08);
+  --rule-strong: oklch(1 0 0 / 0.16);
+
+  --sun: var(--color-sun-400);
+  --sun-ink: var(--color-sun-300);
+  --sky: var(--color-sky-400);
+
+  --radius: 0.125rem;
 }
 
+/* 3. Utilities ------------------------------------------------------------------------ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-sun: var(--sun);
+  --color-sun-ink: var(--sun-ink);
+  --color-sky: var(--sky);
+
+  --radius-sm: var(--radius);
+  --radius-md: calc(var(--radius) * 2);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* An editorial scale: it has to carry a cover line, so the top end is large and very tight. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1.4;
+  --text-2xs--letter-spacing: 0.12em;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.6;
+  --text-base: 0.9375rem;
+  --text-base--line-height: 1.7;
+  --text-lg: 1.0625rem;
+  --text-lg--line-height: 1.65;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.4;
+  --text-2xl: 1.75rem;
+  --text-2xl--line-height: 1.22;
+  --text-2xl--letter-spacing: -0.016em;
+  --text-3xl: 2.5rem;
+  --text-3xl--line-height: 1.08;
+  --text-3xl--letter-spacing: -0.026em;
+  --text-4xl: 3.5rem;
+  --text-4xl--line-height: 1;
+  --text-4xl--letter-spacing: -0.032em;
+  --text-cover: clamp(3rem, 1.2rem + 7.4vw, 8.5rem);
+  --text-cover--line-height: 0.88;
+  --text-cover--letter-spacing: -0.042em;
+
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--rule);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+  /* The running label: issue numbers, section marks, credits. */
+  .mark {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+  }
+  :focus-visible {
+    outline: 2px solid var(--sun);
+    outline-offset: 3px;
+  }
+  ::selection {
+    background: var(--sun);
+    color: var(--color-stone-950);
   }
 }
 
+/* Unlayered on purpose: an embedding host's own body rule beats anything in @layer base. */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Film grain over the whole page: a flat dark ground looks like a screen, not a room. */
+@utility grain {
+  position: relative;
+}
+@utility grain-layer {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
