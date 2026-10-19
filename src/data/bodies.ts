@@ -9,6 +9,10 @@ export type Block =
   | { type: "pull"; text: string }
   | { type: "figure"; kind: "section" | "elevation" | "ar"; caption: string }
   | { type: "levels" }
+  | { type: "approach" }
+  | { type: "programme" }
+  | { type: "overhang" }
+  | { type: "survey" }
   | { type: "dimension"; value: string; caption: string }
   | { type: "note"; text: string }
 
@@ -88,6 +92,7 @@ export const BODIES: Record<string, readonly Block[]> = {
       type: "p",
       text: "Eleven civic buildings, all completed since 2015, all on a plinth. The heights run from 600 millimetres to 1.4 metres and cluster hard at {{plinthHeight}}. When we asked the architects why, nine said some version of presence, two said drainage, and none could produce a drawing where the decision was made.",
     },
+    { type: "survey" },
     {
       type: "p",
       text: "That last part is the finding. Not that the plinth is wrong — it is often right — but that in eleven out of eleven cases it arrived before the reason for it. We asked for the earliest model each practice still held. In eight the plinth is already there, at its final height, in a file dated before the first client workshop. In two it appears between the workshop and the planning submission. In one the practice could not find anything earlier than the tender set, which we have counted as unknown rather than as evidence.",
@@ -109,6 +114,7 @@ export const BODIES: Record<string, readonly Block[]> = {
       type: "p",
       text: "This is where the heights stop being an abstraction. At {{plinthHeight}} a ramp at the maximum gradient permitted for a public approach needs a little over eighteen metres of run, plus landings. Eighteen metres has to go somewhere. In four of the eleven it goes along the front, so the main elevation is read across a handrail. In five it goes down the side, out of the photographs. In two it was value-engineered into a platform lift, which is a cupboard with a button, and which was out of service on the day we visited one of them.",
     },
+    { type: "approach" },
     {
       type: "p",
       text: "None of those outcomes was designed. They are all consequences of a height nobody can account for, resolved years later by whoever had the drawing open. The practices were not careless. Three of them are very good. The decision simply never presented itself as a decision, because it was made by a default rather than by an argument, and defaults do not generate minutes.",
@@ -158,6 +164,12 @@ export const BODIES: Record<string, readonly Block[]> = {
       text: "The carbon is in the frame. The paperwork is why it goes in a skip.",
     },
     {
+      type: "dimension",
+      value: "× 4",
+      caption:
+        "The embodied carbon of a new frame of the same span, against the frame being removed, before anything is clad",
+    },
+    {
       type: "p",
       text: "The arithmetic that follows is unforgiving and widely ignored. A new frame of the same span carries roughly four times the embodied carbon of the one being removed, before anything is clad. Reuse closes that gap entirely and opens a different one, in programme and in risk, which is where the conversation always stops.",
     },
@@ -170,6 +182,7 @@ export const BODIES: Record<string, readonly Block[]> = {
       type: "p",
       text: "So you test. Testing means cutting coupons out of the member, which means the member is shorter, which means either the grid changes or the coupon comes from the part you were going to cut off anyway, which is the part that tells you least. Three coupons per batch is the usual ask. On the second of the three buildings that came to eleven thousand pounds of testing to release about sixty tonnes of steel, and the number that made it work was not the carbon. It was that the replacement sections had a fourteen-week lead time and the testing took three.",
     },
+    { type: "programme" },
     {
       type: "p",
       text: "Concrete is worse, because concrete does not come apart. A reinforced frame is a single object that happens to have been poured in stages. You can cut it, and people do, but what you recover is a slab fragment with unknown reinforcement, unknown cover and a cut face that was never meant to be an edge. The second building gave up eleven hundred square metres of sound slab. All of it was crushed.",
@@ -268,6 +281,12 @@ export const BODIES: Record<string, readonly Block[]> = {
       text: "This sounds reductive until you try to find a building where it is false. The ones that come to mind are the ones with enormous plant, which is to say the ones where the argument was lost and the losses are being paid for in electricity, quietly, for sixty years.",
     },
     {
+      type: "dimension",
+      value: "60 years",
+      caption:
+        "How long a lost thermal argument is paid for in electricity, after everyone who lost it has been paid",
+    },
+    {
       type: "pull",
       text: "The buildings that disprove the rule are the ones with enormous plant: the argument was lost, and the loss is being paid in electricity for sixty years.",
     },
@@ -295,11 +314,16 @@ export const BODIES: Record<string, readonly Block[]> = {
     },
     {
       type: "p",
-      text: "The study tower stands {{towerHeight}} and the upper floor cantilevers {{overhang}} west past the room below it. The overhang shades the glazing underneath for most of the cooling season, which is worth roughly as much as a third of the fins and cost nothing, because the cantilever was there for other reasons and the shade was a consequence. Nobody wrote it down as a shading strategy. It does not appear in the energy model, which assumed a flat facade.",
+      text: "The study tower stands {{towerHeight}} and the upper floor cantilevers {{overhang}} west past the room below it. That was a planning move. It also shades, because a horizontal thing over a window always does, and it cost nothing because it was already there. It is not in the energy model, which assumed a flat facade.",
+    },
+    { type: "overhang" },
+    {
+      type: "p",
+      text: "Draw the shade and the free lunch turns into the standard argument against horizontal devices on a west face. At midday the overhang covers the top two metres of the glass. By six, when the west sun is doing its actual damage, it covers eleven centimetres. A projection fails exactly as the sun it is shading from gets low, which is why a west elevation wants vertical fins and a south elevation wants a brise-soleil — and why the cover study has its fins on the wrong wall to help here.",
     },
     {
       type: "pull",
-      text: "The shade was free, it was substantial, and it is not in the model — because the model was built from an elevation and the elevation does not know what projects.",
+      text: "The shade was free, and it fails at the hour it is needed. Neither fact is in the model, because the model was built from an elevation and an elevation does not know what projects.",
     },
     { type: "h", text: "Why the order persists" },
     {

@@ -13,6 +13,18 @@ const ElevationPlate = dynamic(() =>
 )
 const ArPlate = dynamic(() => import("@/components/ar/ArPlate").then((m) => m.ArPlate))
 const LevelStack = dynamic(() => import("@/components/plates/LevelStack").then((m) => m.LevelStack))
+const ApproachSection = dynamic(() =>
+  import("@/components/plates/ApproachSection").then((m) => m.ApproachSection),
+)
+const ProgrammeStrip = dynamic(() =>
+  import("@/components/plates/ProgrammeStrip").then((m) => m.ProgrammeStrip),
+)
+const OverhangSection = dynamic(() =>
+  import("@/components/plates/OverhangSection").then((m) => m.OverhangSection),
+)
+const PlinthSurvey = dynamic(() =>
+  import("@/components/plates/PlinthSurvey").then((m) => m.PlinthSurvey),
+)
 
 /**
  * The body, set as a sheet rather than wrapped in an effect.
@@ -26,7 +38,7 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
   // Derived, not accumulated: a counter incremented inside the map is a local reassigned after
   // render, which the React Compiler rejects and which would give a different answer if the list
   // were ever rendered twice.
-  const PLATE_TYPES = new Set(["figure", "levels"])
+  const PLATE_TYPES = new Set(["figure", "levels", "approach", "programme", "overhang", "survey"])
   const plates = blocks.flatMap((block, i) => (PLATE_TYPES.has(block.type) ? [i] : []))
 
   // The elevation's caption points at the section. Derived here, where the numbering is, so a
@@ -82,6 +94,18 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
 
           case "levels":
             return <LevelStack key={i} plate={plates.indexOf(i) + 1} />
+
+          case "approach":
+            return <ApproachSection key={i} plate={plates.indexOf(i) + 1} />
+
+          case "programme":
+            return <ProgrammeStrip key={i} plate={plates.indexOf(i) + 1} />
+
+          case "overhang":
+            return <OverhangSection key={i} plate={plates.indexOf(i) + 1} />
+
+          case "survey":
+            return <PlinthSurvey key={i} plate={plates.indexOf(i) + 1} />
 
           case "dimension":
             return <Dimension key={i} value={block.value} caption={<Prose text={block.caption} />} />
