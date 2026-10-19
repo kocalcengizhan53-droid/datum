@@ -79,6 +79,12 @@ describe("quantities", () => {
     const prose = Object.values(BODIES)
       .flat()
       .flatMap((block) => ("text" in block ? [block.text] : []).concat("caption" in block ? [block.caption] : []))
+      .concat(
+        // The volume labels are prose too. One of them described the cantilever as a "3.1m
+        // overhang" against a projection of two metres, and it went unchallenged because the
+        // field is not rendered anywhere — which makes it more dangerous, not less.
+        MASSING.map((v) => v.label),
+      )
       .join("\n")
 
     const offenders: string[] = []

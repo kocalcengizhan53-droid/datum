@@ -7,7 +7,7 @@ import { Datum } from "@/components/sheet/Datum"
 import { Masthead } from "@/components/Masthead"
 import { ReadingProgress } from "@/components/ReadingProgress"
 import { BODIES } from "@/data/bodies"
-import { ARTICLES } from "@/data/issue"
+import { ARTICLES, readingMinutes } from "@/data/issue"
 
 export function generateStaticParams() {
   return ARTICLES.map((article) => ({ slug: article.slug }))
@@ -55,7 +55,7 @@ export default async function ArticlePage({ params }: PageProps<"/[slug]">) {
           <aside className="mb-8 h-fit md:sticky md:top-10 md:mb-0">
             <p className="mark">{article.author}</p>
             <p className="mark mt-1 tnum">
-              {article.readingMinutes} min · {article.published}
+              {readingMinutes(article.slug)} min · {article.published}
             </p>
             <p className="text-fg-muted prose-fig mt-6 max-w-[34ch] text-base text-pretty">
               {article.standfirst}

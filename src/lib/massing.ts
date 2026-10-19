@@ -21,10 +21,10 @@ export type Volume = {
 }
 
 export const MASSING: readonly Volume[] = [
-  { id: "plinth", position: [0, 0.45, 0], size: [15.5, 0.9, 9.4], glazing: 0, label: "Plinth, 900mm above datum" },
+  { id: "plinth", position: [0, 0.45, 0], size: [15.5, 0.9, 9.4], glazing: 0, label: "Plinth, raised above the datum" },
   { id: "slab", position: [-1.6, 3.3, 0], size: [11.4, 4.8, 7.2], glazing: 0.35, label: "Reading room, four bays" },
   { id: "tower", position: [5.9, 5.2, -1.1], size: [3.2, 8.6, 3.2], glazing: 0.1, label: "Stair and services" },
-  { id: "cantilever", position: [-6.1, 6.2, 1.5], size: [6.4, 1.3, 4.6], glazing: 0.55, label: "Cantilevered study, 3.1m overhang" },
+  { id: "cantilever", position: [-6.1, 6.2, 1.5], size: [6.4, 1.3, 4.6], glazing: 0.55, label: "Cantilevered study, projecting west" },
   { id: "podium", position: [-1.2, 1.35, 5.4], size: [8.2, 0.9, 2.2], glazing: 0, label: "Entrance steps" },
 ]
 

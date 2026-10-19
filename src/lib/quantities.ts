@@ -59,9 +59,21 @@ export const QUANTITIES = {
   plinthHeight: mm(plinth.position[1] * 2),
   slabWidth: mm(slab.size[0]),
   towerHeight: m(tower.position[1] + tower.size[1] / 2),
-  /** The overhang is what the cantilever projects past the slab it springs from. */
+  /**
+   * What the cantilever projects past the slab it springs from — measured on the axis it
+   * actually cantilevers along, which is west.
+   *
+   * This read the south face and returned 0.2m: the study does lap 200mm past the slab in that
+   * direction, and that is not the overhang, it is a tolerance. The cantilever projects two
+   * metres west. The volume's own label meanwhile claimed 3.1m, which is true on no axis at
+   * all, and nothing noticed because the label is not rendered anywhere — a number can be
+   * wrong for years in a field nobody prints.
+   */
   overhang: m(
-    cantilever.position[2] + cantilever.size[2] / 2 - (slab.position[2] + slab.size[2] / 2),
+    Math.max(
+      slab.position[0] - slab.size[0] / 2 - (cantilever.position[0] - cantilever.size[0] / 2),
+      cantilever.position[0] + cantilever.size[0] / 2 - (slab.position[0] + slab.size[0] / 2),
+    ),
     1,
   ),
   overallWidth: mm(extent(0)),

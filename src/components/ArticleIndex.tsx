@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { ViewTransition } from "react"
 
-import { ARTICLES } from "@/data/issue"
+import { ARTICLES, readingMinutes } from "@/data/issue"
 
 export function ArticleIndex() {
   return (
@@ -30,7 +30,7 @@ export function ArticleIndex() {
                   </ViewTransition>
                   <p className="text-fg-muted prose-fig mt-3 text-lg text-pretty">{article.standfirst}</p>
                   <p className="mark mt-4">
-                    {article.author} · {article.readingMinutes} min
+                    {article.author} · {readingMinutes(article.slug)} min
                   </p>
                 </div>
               </Link>
