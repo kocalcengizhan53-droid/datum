@@ -12,6 +12,7 @@ const ElevationPlate = dynamic(() =>
   import("@/components/three/plates/ElevationPlate").then((m) => m.ElevationPlate),
 )
 const ArPlate = dynamic(() => import("@/components/ar/ArPlate").then((m) => m.ArPlate))
+const LevelStack = dynamic(() => import("@/components/plates/LevelStack").then((m) => m.LevelStack))
 
 /**
  * The body, set as a sheet rather than wrapped in an effect.
@@ -25,7 +26,14 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
   // Derived, not accumulated: a counter incremented inside the map is a local reassigned after
   // render, which the React Compiler rejects and which would give a different answer if the list
   // were ever rendered twice.
-  const plates = blocks.flatMap((block, i) => (block.type === "figure" ? [i] : []))
+  const PLATE_TYPES = new Set(["figure", "levels"])
+  const plates = blocks.flatMap((block, i) => (PLATE_TYPES.has(block.type) ? [i] : []))
+
+  // The elevation's caption points at the section. Derived here, where the numbering is, so a
+  // reordered figure list moves the reference with it instead of leaving it pointing at
+  // whatever is now in second place.
+  const sectionIndex = blocks.findIndex((b) => b.type === "figure" && b.kind === "section")
+  const sectionPlate = plates.indexOf(sectionIndex) + 1
 
   /*
    * The measure belongs to the text, not to the container.
@@ -72,12 +80,16 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
               </aside>
             )
 
+          case "levels":
+            return <LevelStack key={i} plate={plates.indexOf(i) + 1} />
+
           case "dimension":
             return <Dimension key={i} value={block.value} caption={<Prose text={block.caption} />} />
 
           case "figure": {
             const number = plates.indexOf(i) + 1
-            if (block.kind === "elevation") return <ElevationPlate key={i} plate={number} />
+            if (block.kind === "elevation")
+              return <ElevationPlate key={i} plate={number} refersTo={sectionPlate} />
             if (block.kind === "ar") return <ArPlate key={i} plate={number} />
             return <SectionStudy key={i} caption={<Prose text={block.caption} />} plate={number} />
           }

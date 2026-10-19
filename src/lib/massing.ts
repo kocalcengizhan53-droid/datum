@@ -52,17 +52,26 @@ export const GROUND_SIZE = 46
 /**
  * The sun's position for a given hour, as a unit-ish vector scaled to a distance.
  *
- * A simple arc rather than real solar geometry: the scene is a study, and an accurate azimuth for
- * an unstated latitude would be precision nobody can check in service of realism nobody asked
- * for. What matters is that low sun rakes and high sun flattens, which this does.
+ * A simple arc rather than real solar geometry: the scene is a study, and an accurate azimuth
+ * for an unstated latitude would be precision nobody can check in service of realism nobody
+ * asked for. What matters is that low sun rakes and high sun flattens.
+ *
+ * It does have to get the directions right, though, and for a long time it did not. The east
+ * term carried a `* -1`, so the sun rose at x = −34 — the west — crossed over, and set in the
+ * east, on a cover whose whole subject is what a south elevation does with the sun. The
+ * southerly term was wrong in the same way: it was largest at dawn and smallest at dusk, when
+ * the sun is at its most southerly at noon. Both are the kind of error that looks like a
+ * lighting choice, which is why it survived every screenshot.
  */
 export function sunPosition(hour: number, distance = 34): [number, number, number] {
   const t = Math.max(0, Math.min(1, (hour - 6) / 12))
   const angle = t * Math.PI
   return [
-    Math.cos(angle) * distance * -1,
+    // East at 06:00, through zero at noon, west at 18:00.
+    Math.cos(angle) * distance,
     Math.max(0.08, Math.sin(angle)) * distance * 0.72,
-    Math.cos(angle * 0.6) * distance * 0.34 + distance * 0.22,
+    // Always south of the building, most so at noon, so the screen is lit all day.
+    (0.25 + 0.45 * Math.sin(angle)) * distance,
   ]
 }
 

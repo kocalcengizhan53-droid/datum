@@ -8,6 +8,7 @@ export type Block =
   | { type: "h"; text: string }
   | { type: "pull"; text: string }
   | { type: "figure"; kind: "section" | "elevation" | "ar"; caption: string }
+  | { type: "levels" }
   | { type: "dimension"; value: string; caption: string }
   | { type: "note"; text: string }
 
@@ -233,6 +234,7 @@ export const BODIES: Record<string, readonly Block[]> = {
       type: "p",
       text: "A datum also has to survive being handed over. On a project of any size there are at least four of them in play: the architect's, which is usually the finished floor; the engineer's, which is usually the top of the structural slab, a construction depth lower; the surveyor's, which is a national grid level; and the contractor's peg, which is a mark on a wall at the edge of the site and is the only one anybody actually builds to.",
     },
+    { type: "levels" },
     {
       type: "p",
       text: "Each conversion is a subtraction, and each subtraction is a place to be out by the depth of a screed. We have seen this go wrong twice at the same point: a drainage invert set from the structural datum against a threshold set from the finished floor, discovered when the water went the wrong way across a terrace. Both times the drawings were individually correct. Neither set said which zero it was using, because both thought it was obvious.",

@@ -180,9 +180,15 @@ export function LightStudy() {
     return () => query.removeEventListener("change", apply)
   }, [])
 
+  const surface = useRef<HTMLDivElement>(null)
+
   const writeHour = useCallback((next: number) => {
     hour.current = Math.max(6, Math.min(18, next))
     if (readout.current) readout.current.textContent = hourLabel(hour.current)
+    // Announced value follows the drawing. The hour is a ref so that dragging re-renders
+    // nothing, which means the attribute has to be written the same way.
+    surface.current?.setAttribute("aria-valuenow", hour.current.toFixed(2))
+    surface.current?.setAttribute("aria-valuetext", hourLabel(hour.current))
     const pct = ((hour.current - 6) / 12) * 100
     track.current?.style.setProperty("--at", `${pct}%`)
   }, [])
@@ -196,7 +202,38 @@ export function LightStudy() {
 
   return (
     <div
-      className="relative h-full w-full touch-none"
+      ref={surface}
+      role="slider"
+      tabIndex={0}
+      aria-label="Hour of the solar study"
+      aria-valuemin={6}
+      aria-valuemax={18}
+      aria-valuenow={START_HOUR}
+      aria-valuetext={hourLabel(START_HOUR)}
+      aria-orientation="horizontal"
+      /*
+       * The cover was pointer-only. Its one interaction — the thing the whole page is built to
+       * invite — could not be reached from a keyboard at all. A quarter of an hour per press,
+       * five minutes with Shift, an hour on Page, and the ends on Home and End.
+       */
+      onKeyDown={(event) => {
+        const step = event.shiftKey ? 1 / 12 : 0.25
+        const moves: Record<string, number | "min" | "max"> = {
+          ArrowLeft: -step,
+          ArrowDown: -step,
+          ArrowRight: step,
+          ArrowUp: step,
+          PageDown: -1,
+          PageUp: 1,
+          Home: "min",
+          End: "max",
+        }
+        const move = moves[event.key]
+        if (move === undefined) return
+        event.preventDefault()
+        writeHour(move === "min" ? 6 : move === "max" ? 18 : hour.current + move)
+      }}
+      className="focus-visible:outline-sun relative h-full w-full touch-none"
       onPointerMove={(event) => {
         const box = event.currentTarget.getBoundingClientRect()
         pointer.current = {

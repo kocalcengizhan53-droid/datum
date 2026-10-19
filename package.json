@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build",
-    "qa": "node qa/shot.mjs && node qa/invisible.mjs && node qa/type.mjs && node qa/ar.mjs",
+    "qa": "node qa/shot.mjs && node qa/invisible.mjs && node qa/type.mjs && node qa/ar.mjs && node qa/keyboard.mjs",
     "build:ar": "node scripts/build-ar.mjs",
     "prebuild": "npm run build:ar"
   },

@@ -98,17 +98,47 @@ export function SectionStudy({ caption, plate }: { caption: React.ReactNode; pla
   const cut = useRef(START)
   const readout = useRef<HTMLSpanElement>(null)
   const track = useRef<HTMLDivElement>(null)
+  const surface = useRef<HTMLDivElement>(null)
   const dragging = useRef(false)
 
   const write = useCallback((next: number) => {
     cut.current = Math.max(MIN_X, Math.min(MAX_X, next))
     const pct = ((cut.current - MIN_X) / (MAX_X - MIN_X)) * 100
     track.current?.style.setProperty("--at", `${pct}%`)
+    // The value a screen reader announces has to move with the drawing, and the drawing is
+    // driven imperatively, so the attribute is written here rather than rendered.
+    surface.current?.setAttribute("aria-valuenow", cut.current.toFixed(1))
     if (readout.current) {
       // Metres east of the datum, which is the number a section mark would carry.
       readout.current.textContent = `${cut.current >= 0 ? "+" : "−"}${Math.abs(cut.current).toFixed(1)} m`
     }
   }, [])
+
+  /*
+   * The cut moves by keyboard as well as by pointer.
+   *
+   * This plate and the cover were pointer-only: no tabIndex, no key handling, no input. The two
+   * best things on the site could not be operated without a mouse, which also means they could
+   * not be operated by anyone driving the page from the keyboard. A coarse step of half a metre
+   * and a fine step of a tenth, with Home and End at the ends, is what a slider owes.
+   */
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const step = e.shiftKey ? 0.1 : 0.5
+    const moves: Record<string, number | "min" | "max"> = {
+      ArrowLeft: -step,
+      ArrowDown: -step,
+      ArrowRight: step,
+      ArrowUp: step,
+      PageDown: -step * 4,
+      PageUp: step * 4,
+      Home: "min",
+      End: "max",
+    }
+    const move = moves[e.key]
+    if (move === undefined) return
+    e.preventDefault()
+    write(move === "min" ? MIN_X : move === "max" ? MAX_X : cut.current + move)
+  }
 
   useEffect(() => {
     write(START)
@@ -120,7 +150,16 @@ export function SectionStudy({ caption, plate }: { caption: React.ReactNode; pla
   return (
     <PlateFrame plate={plate} type="section · the cut moves" caption={caption} hint="drag">
       <div
-        className="relative aspect-[16/9] w-full touch-none"
+        ref={surface}
+        role="slider"
+        tabIndex={0}
+        aria-label="Position of the section cut, in metres east of the datum"
+        aria-valuemin={MIN_X}
+        aria-valuemax={MAX_X}
+        aria-valuenow={START}
+        aria-orientation="horizontal"
+        onKeyDown={onKeyDown}
+        className="focus-visible:outline-sun relative aspect-[16/9] w-full touch-none"
         onPointerDown={(e) => {
           dragging.current = true
           e.currentTarget.setPointerCapture(e.pointerId)

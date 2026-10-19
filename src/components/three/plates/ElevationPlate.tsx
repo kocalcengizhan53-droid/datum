@@ -64,12 +64,17 @@ const DIM_OUTER = -1.85
 const DIM_LEFT = buildingLeft - 1.6
 const finDepth = FINS[0].size[2]
 
-export function ElevationPlate({ plate }: { plate: number }) {
+/*
+ * refersTo is passed in rather than written into the caption. It said "Plate 02", which was
+ * true only because the section happened to be second; reorder the figures and the sentence
+ * would have pointed at the wrong drawing while still reading perfectly.
+ */
+export function ElevationPlate({ plate, refersTo }: { plate: number; refersTo: number }) {
   return (
     <PlateFrame
       plate={plate}
       type="south elevation · 1:200"
-      caption="The screen reads as a surface here and as a depth in Plate 02. An elevation cannot show what a fin is for, which is the argument."
+      caption={`The screen reads as a surface here and as a depth in Plate ${String(refersTo).padStart(2, "0")}. An elevation cannot show what a fin is for, which is the argument.`}
     >
       <div className="relative aspect-[16/9] w-full">
         <Canvas
