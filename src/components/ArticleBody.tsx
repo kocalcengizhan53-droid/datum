@@ -27,13 +27,21 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
   // were ever rendered twice.
   const plates = blocks.flatMap((block, i) => (block.type === "figure" ? [i] : []))
 
+  /*
+   * The measure belongs to the text, not to the container.
+   *
+   * Capping the whole body at 62ch capped the plates too, so a drawing of a building got the
+   * same width as a sentence about it — about 700px in a column that had more to give. Here
+   * each prose block carries the measure and the figures take the column, which is how a page
+   * with figures on it is actually set.
+   */
   return (
-    <div className="prose-fig max-w-[62ch]">
+    <div className="prose-fig">
       {blocks.map((block, i) => {
         switch (block.type) {
           case "h":
             return (
-              <section key={i} className="mt-14">
+              <section key={i} className="mt-14 max-w-[62ch]">
                 <span aria-hidden="true" className="bg-rule-strong draw-x block h-px w-full origin-left" />
                 <h2 className="mt-4 mb-5 text-2xl font-medium text-balance">
                   <Prose text={block.text} />
@@ -43,7 +51,7 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
 
           case "pull":
             return (
-              <figure key={i} className="my-12">
+              <figure key={i} className="my-12 max-w-[62ch]">
                 <span aria-hidden="true" className="bg-sun/60 draw-x block h-px w-2/3 origin-left" />
                 <blockquote className="py-5">
                   <p className="text-xl text-balance">
@@ -56,7 +64,7 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
 
           case "note":
             return (
-              <aside key={i} className="mt-14">
+              <aside key={i} className="mt-14 max-w-[62ch]">
                 <span aria-hidden="true" className="bg-rule draw-x block h-px w-full origin-left" />
                 <p className="text-fg-faint pt-4 text-sm">
                   <Prose text={block.text} />
@@ -76,7 +84,7 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
 
           default:
             return (
-              <p key={i} className="mb-6 text-lg text-pretty">
+              <p key={i} className="mb-6 max-w-[62ch] text-lg text-pretty">
                 <Prose text={block.text} />
               </p>
             )

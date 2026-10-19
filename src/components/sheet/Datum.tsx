@@ -24,7 +24,7 @@ export function Datum({ label = "±0.000", note }: { label?: string; note?: stri
  */
 export function Dimension({ value, caption }: { value: string; caption: React.ReactNode }) {
   return (
-    <div className="py-1">
+    <div className="max-w-[62ch] py-1">
       <div className="flex items-center gap-2">
         <span className="bg-sun/55 draw-dim h-px flex-1 origin-left" />
         <span className="tnum draw-dim-label text-2xs text-sun-ink font-mono whitespace-nowrap">
