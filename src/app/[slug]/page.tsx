@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ViewTransition } from "react"
 
 import { ArticleBody } from "@/components/ArticleBody"
+import { Datum } from "@/components/sheet/Datum"
 import { Masthead } from "@/components/Masthead"
 import { ReadingProgress } from "@/components/ReadingProgress"
 import { BODIES } from "@/data/bodies"
@@ -27,6 +28,11 @@ export default async function ArticlePage({ params }: PageProps<"/[slug]">) {
       <Masthead />
 
       <article className="px-6 sm:px-10">
+        {/* The sheet declares its level before anything is dimensioned from it. */}
+        <div className="pt-6">
+          <Datum note={`plate set · issue ${String(14)}`} />
+        </div>
+
         <header className="border-rule grid gap-x-10 gap-y-6 border-b py-12 md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
           <div className="flex h-fit items-baseline gap-4">
             <span className="mark tnum">{String(index + 1).padStart(2, "0")}</span>

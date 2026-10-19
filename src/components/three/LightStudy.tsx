@@ -1,7 +1,7 @@
 "use client"
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
-import { ContactShadows, Environment } from "@react-three/drei"
+import { ContactShadows, Environment, Sparkles } from "@react-three/drei"
 import { useCallback, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
@@ -59,6 +59,54 @@ function Sun({ hour }: { hour: React.RefObject<number> }) {
       shadow-camera-near={1}
       shadow-camera-far={90}
     />
+  )
+}
+
+/**
+ * The air between the fins.
+ *
+ * The issue is called Shade and the cover line is "What a building does with the sun", but until
+ * now the light was only readable where it landed — a pattern on a wall rather than a volume in a
+ * space. Dust in the shafts is how an architectural render shows that, and it is how the fins
+ * themselves become legible from the side.
+ *
+ * Density follows the sun: strongest at the ends of the day when the light rakes through the
+ * screen, almost gone at noon when it comes straight down and there are no shafts to catch.
+ */
+function Air({ hour }: { hour: React.RefObject<number> }) {
+  const group = useRef<THREE.Group>(null)
+
+  useFrame(() => {
+    const g = group.current
+    if (!g) return
+    const t = Math.max(0, Math.min(1, (hour.current - 6) / 12))
+    const raking = 1 - Math.sin(t * Math.PI) ** 1.6
+    g.visible = raking > 0.06
+    g.scale.setScalar(0.6 + raking * 0.4)
+  })
+
+  return (
+    <group ref={group}>
+      {/* Concentrated along the south face where the screen is, not scattered over the whole site. */}
+      <Sparkles
+        count={420}
+        scale={[15, 7, 7]}
+        position={[-2.4, 3.9, 3.2]}
+        size={2.4}
+        speed={0.14}
+        opacity={0.5}
+        color="#ffd9a0"
+      />
+      <Sparkles
+        count={180}
+        scale={[22, 9, 16]}
+        position={[0, 5.2, 0]}
+        size={1.5}
+        speed={0.09}
+        opacity={0.22}
+        color="#cdd8f0"
+      />
+    </group>
   )
 }
 
@@ -185,6 +233,7 @@ export function LightStudy() {
         <hemisphereLight args={["#4f6ea6", "#1b1712", 0.34]} />
         <Sun hour={hour} />
         <Massing />
+        <Air hour={hour} />
         <ContactShadows position={[0, 0.01, 0]} opacity={0.5} scale={44} blur={2.4} far={9} />
         <Environment preset="night" environmentIntensity={0.22} />
         <Camera pointer={pointer} still={reduced} />

@@ -171,12 +171,40 @@ body {
  * Scroll-driven animation. The timeline declaration must come after the shorthand, and the whole
  * block is behind @supports so a browser without scroll timelines shows everything at rest.
  */
+/*
+ * Lines draw themselves. Text does not fade.
+ *
+ * The page used to wrap every block in a 14px fade-up — one treatment applied by a component
+ * that had no idea what it was wrapping, which is the definition of a plugin rather than a
+ * design. It is gone, and the scroll timeline is spent on the one idea this subject owns:
+ * on a drawing, the rules, the dimension strings and the section marks are *drawn*, and the
+ * prose is simply set. Nothing here touches opacity on text, so no paragraph can ever be
+ * invisible — the failure mode the old wrapper had by construction.
+ */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .reveal {
-      animation: reveal-up 620ms var(--ease-out-expo) both;
+    /* A rule that draws from the margin across the sheet. */
+    .draw-x {
+      animation: draw-x 900ms var(--ease-out-expo) both;
       animation-timeline: view();
-      animation-range: entry 4% cover 26%;
+      animation-range: entry 0% cover 18%;
+    }
+    /* A dimension string: the line extends, then the figure arrives at the end of it. */
+    .draw-dim {
+      animation: draw-x 620ms var(--ease-out-expo) both;
+      animation-timeline: view();
+      animation-range: entry 2% cover 20%;
+    }
+    .draw-dim-label {
+      animation: dim-label 420ms var(--ease-out-expo) both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 24%;
+    }
+    /* A section mark drops down its leader. */
+    .draw-y {
+      animation: draw-y 700ms var(--ease-out-expo) both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 20%;
     }
   }
 }
@@ -188,10 +216,28 @@ body {
   }
 }
 
-@keyframes reveal-up {
+@keyframes draw-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes draw-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes dim-label {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateX(-0.4rem);
   }
   to {
     opacity: 1;

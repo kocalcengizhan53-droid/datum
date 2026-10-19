@@ -8,6 +8,7 @@ export type Block =
   | { type: "h"; text: string }
   | { type: "pull"; text: string }
   | { type: "figure"; kind: "section"; caption: string }
+  | { type: "dimension"; value: string; caption: string }
   | { type: "note"; text: string }
 
 export const BODIES: Record<string, readonly Block[]> = {

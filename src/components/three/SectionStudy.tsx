@@ -93,7 +93,7 @@ function Scene({ cut }: { cut: React.RefObject<number> }) {
   )
 }
 
-export function SectionStudy({ caption }: { caption: string }) {
+export function SectionStudy({ caption, plate }: { caption: string; plate: number }) {
   const cut = useRef(START)
   const readout = useRef<HTMLSpanElement>(null)
   const track = useRef<HTMLDivElement>(null)
@@ -164,8 +164,12 @@ export function SectionStudy({ caption }: { caption: string }) {
           </div>
         </div>
       </div>
-      <figcaption className="text-fg-faint border-rule border-t px-5 py-3 text-sm">
-        {caption}
+      {/* Numbered as a plate, cited the way a drawing set is, not captioned like a photo. */}
+      <figcaption className="border-rule flex gap-4 border-t px-5 py-3">
+        <span className="mark tnum text-sun-ink shrink-0">
+          Plate {String(plate).padStart(2, "0")}
+        </span>
+        <span className="text-fg-faint text-sm">{caption}</span>
       </figcaption>
     </figure>
   )

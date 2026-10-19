@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { ViewTransition } from "react"
 
-import { Reveal } from "@/components/Reveal"
 import { ARTICLES } from "@/data/issue"
 
 export function ArticleIndex() {
@@ -10,11 +9,10 @@ export function ArticleIndex() {
       <ol>
         {ARTICLES.map((article, index) => (
           <li key={article.slug} className="border-rule border-b last:border-0">
-            <Reveal>
-              <Link
+            <Link
                 href={`/${article.slug}`}
                 className="group grid gap-x-10 gap-y-3 py-8 md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]"
-              >
+            >
                 <div className="flex h-fit items-baseline gap-4">
                   <span className="mark tnum">{String(index + 1).padStart(2, "0")}</span>
                   <span className="mark">{article.kicker}</span>
@@ -36,7 +34,6 @@ export function ArticleIndex() {
                   </p>
                 </div>
               </Link>
-            </Reveal>
           </li>
         ))}
       </ol>
