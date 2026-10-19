@@ -5,7 +5,13 @@
 import { chromium } from "@playwright/test"
 import { mkdir } from "node:fs/promises"
 
-const URL = process.env.QA_URL ?? "http://localhost:3300/"
+const BASE = (process.env.QA_URL ?? "http://localhost:3300").replace(/\/$/, "")
+// Both scenes get shot: the cover is perspective with a sun, the article is orthographic with a
+// cut, and a regression in either one is invisible from the other page.
+const PAGES = [
+  { path: "/", slug: "cover" },
+  { path: "/what-the-fins-are-for", slug: "article" },
+]
 await mkdir("qa/out", { recursive: true })
 
 const views = [
@@ -20,13 +26,30 @@ const browser = await chromium.launch({
 })
 const problems = []
 
+for (const { path, slug } of PAGES)
 for (const view of views) {
-  const context = await browser.newContext({ viewport: view, deviceScaleFactor: 2 })
+  const label = `${slug}/${view.name}`
+  /*
+   * Two passes per view, because one cannot tell the truth about both things.
+   *
+   * A fullPage capture resizes the viewport to the document height, which puts every
+   * scroll-driven reveal outside its animation range — they freeze at `from`, i.e. opacity 0,
+   * and the shot shows a page with holes in it that the live page does not have. Emulating
+   * reduced motion switches the reveals off entirely, so the layout shot is honest, and it
+   * exercises the reduced-motion branch at the same time.
+   *
+   * The atmosphere shot is viewport-sized with motion on, which is what a visitor sees.
+   */
+  const context = await browser.newContext({
+    viewport: view,
+    deviceScaleFactor: 2,
+    reducedMotion: "reduce",
+  })
   const page = await context.newPage()
-  page.on("console", (m) => m.type() === "error" && problems.push(`${view.name}: ${m.text()}`))
-  page.on("pageerror", (e) => problems.push(`${view.name}: ${e.message}`))
+  page.on("console", (m) => m.type() === "error" && problems.push(`${label}: ${m.text()}`))
+  page.on("pageerror", (e) => problems.push(`${label}: ${e.message}`))
 
-  await page.goto(URL, { waitUntil: "networkidle" })
+  await page.goto(BASE + path, { waitUntil: "networkidle" })
   await page.locator("canvas").first().waitFor({ timeout: 20_000 })
   // Give the scene a few frames: a canvas measured on mount is always black.
   await page.waitForTimeout(1800)
@@ -58,17 +81,24 @@ for (const view of views) {
     return { ok: true, bright, tones: distinct.size }
   })
 
-  if (!lit.ok) problems.push(`${view.name}: ${lit.reason}`)
+  if (!lit.ok) problems.push(`${label}: ${lit.reason}`)
   // A scene that compiled but is unlit looks like a dark rectangle; both numbers catch that.
-  else if (lit.bright < 40) problems.push(`${view.name}: scene is dark (${lit.bright} lit samples)`)
-  else if (lit.tones < 24) problems.push(`${view.name}: scene is flat (${lit.tones} tones)`)
+  else if (lit.bright < 40) problems.push(`${label}: scene is dark (${lit.bright} lit samples)`)
+  else if (lit.tones < 24) problems.push(`${label}: scene is flat (${lit.tones} tones)`)
 
-  await page.screenshot({ path: `qa/out/${view.name}.png`, fullPage: true })
+  await page.screenshot({ path: `qa/out/${slug}-${view.name}.png`, fullPage: true })
+
+  const motion = await browser.newContext({ viewport: view, deviceScaleFactor: 2 })
+  const livePage = await motion.newPage()
+  await livePage.goto(BASE + path, { waitUntil: "networkidle" })
+  await livePage.waitForTimeout(1600)
+  await livePage.screenshot({ path: `qa/out/${slug}-${view.name}-live.png` })
+  await motion.close()
 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)
-  if (overflow) problems.push(`${view.name}: horizontal overflow`)
+  if (overflow) problems.push(`${label}: horizontal overflow`)
 
-  console.log(`${view.name} ${view.width}x${view.height} — lit ${lit.bright}, tones ${lit.tones}`)
+  console.log(`${label.padEnd(18)} ${view.width}x${view.height} — lit ${lit.bright}, tones ${lit.tones}`)
   await context.close()
 }
 
