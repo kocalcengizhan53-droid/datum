@@ -41,8 +41,18 @@ const tower = MASSING.find((v) => v.id === "tower")!
 const plinthTop = plinth.position[1] + plinth.size[1] / 2
 const towerTop = tower.position[1] + tower.size[1] / 2
 const finPitch = FINS[1].position[0] - FINS[0].position[0]
-const buildingLeft = plinth.position[0] - plinth.size[0] / 2
-const buildingRight = tower.position[0] + tower.size[0] / 2
+/*
+ * The extremes of the whole model, not of two volumes that look like the extremes. The plinth is
+ * not the west face — the cantilever projects 1,550mm past it — and the tower is not the east
+ * face. Drawn from the plinth and the tower, the overall dimension stopped short of the building
+ * at both ends while claiming to measure it.
+ */
+const PARTS: readonly { position: readonly number[]; size: readonly number[] }[] = [
+  ...MASSING,
+  ...FINS,
+]
+const buildingLeft = Math.min(...PARTS.map((p) => p.position[0] - p.size[0] / 2))
+const buildingRight = Math.max(...PARTS.map((p) => p.position[0] + p.size[0] / 2))
 /*
  * Horizontal dimensions stack below the elevation as a chain — parts on the inner line, overall
  * on the outer — which is how a drawing is dimensioned and also the only place they do not

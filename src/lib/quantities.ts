@@ -21,6 +21,27 @@ const volume = (id: string): Volume => {
 }
 
 const mm = (metres: number) => ({ value: Math.round(metres * 1000).toString(), unit: "mm" })
+
+/**
+ * The widest extent of the whole model along an axis, taken over every volume.
+ *
+ * The overall width used to be written as "tower's east face minus the plinth's west face",
+ * which is two hand-picked volumes and was wrong: the cantilever projects 1,550mm further west
+ * than the plinth, and the plinth 250mm further east than the tower. The figure read 15,250
+ * against a building 17,050 wide, and the elevation drew its overall dimension to match — so the
+ * cantilever hung past the end of the line that was supposed to measure it. Nothing caught it,
+ * because the drawing and the number were wrong in the same way from the same two volumes. The
+ * bounding box of the AR export disagreed, which is the only reason it surfaced.
+ */
+const extent = (axis: 0 | 1 | 2) => {
+  const parts: readonly { position: readonly number[]; size: readonly number[] }[] = [
+    ...MASSING,
+    ...FINS,
+  ]
+  const low = Math.min(...parts.map((p) => p.position[axis] - p.size[axis] / 2))
+  const high = Math.max(...parts.map((p) => p.position[axis] + p.size[axis] / 2))
+  return high - low
+}
 const m = (metres: number, dp = 1) => ({ value: metres.toFixed(dp), unit: "m" })
 
 const plinth = volume("plinth")
@@ -43,9 +64,7 @@ export const QUANTITIES = {
     cantilever.position[2] + cantilever.size[2] / 2 - (slab.position[2] + slab.size[2] / 2),
     1,
   ),
-  overallWidth: mm(
-    tower.position[0] + tower.size[0] / 2 - (plinth.position[0] - plinth.size[0] / 2),
-  ),
+  overallWidth: mm(extent(0)),
 } as const satisfies Record<string, Quantity>
 
 export type QuantityKey = keyof typeof QUANTITIES

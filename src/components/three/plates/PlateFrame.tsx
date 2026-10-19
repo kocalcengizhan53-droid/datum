@@ -26,9 +26,12 @@ export function PlateFrame({
         <span className="instrument">{type}</span>
       </div>
       <div className="relative">{children}</div>
-      <figcaption className="border-rule text-fg-faint border-t px-5 py-3 text-sm">
-        {caption}
-        {hint ? <span className="instrument ml-3">{hint}</span> : null}
+      {/* The hint is set apart rather than appended: trailing a one-line caption it reads as a
+          tag, but trailing a caption that wraps it reads as the last two words of the sentence,
+          which is how "…which is the datum. scan" got onto a phone screen. */}
+      <figcaption className="border-rule text-fg-faint flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1 border-t px-5 py-3 text-sm">
+        <span className="min-w-[20ch] flex-1">{caption}</span>
+        {hint ? <span className="instrument shrink-0">{hint}</span> : null}
       </figcaption>
     </figure>
   )

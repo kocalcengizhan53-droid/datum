@@ -11,6 +11,7 @@ const SectionStudy = dynamic(() =>
 const ElevationPlate = dynamic(() =>
   import("@/components/three/plates/ElevationPlate").then((m) => m.ElevationPlate),
 )
+const ArPlate = dynamic(() => import("@/components/ar/ArPlate").then((m) => m.ArPlate))
 
 /**
  * The body, set as a sheet rather than wrapped in an effect.
@@ -68,11 +69,9 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
 
           case "figure": {
             const number = plates.indexOf(i) + 1
-            return block.kind === "elevation" ? (
-              <ElevationPlate key={i} plate={number} />
-            ) : (
-              <SectionStudy key={i} caption={<Prose text={block.caption} />} plate={number} />
-            )
+            if (block.kind === "elevation") return <ElevationPlate key={i} plate={number} />
+            if (block.kind === "ar") return <ArPlate key={i} plate={number} />
+            return <SectionStudy key={i} caption={<Prose text={block.caption} />} plate={number} />
           }
 
           default:

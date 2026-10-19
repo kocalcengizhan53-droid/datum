@@ -7,7 +7,7 @@ export type Block =
   | { type: "p"; text: string }
   | { type: "h"; text: string }
   | { type: "pull"; text: string }
-  | { type: "figure"; kind: "section" | "elevation"; caption: string }
+  | { type: "figure"; kind: "section" | "elevation" | "ar"; caption: string }
   | { type: "dimension"; value: string; caption: string }
   | { type: "note"; text: string }
 
@@ -50,6 +50,11 @@ export const BODIES: Record<string, readonly Block[]> = {
       type: "p",
       text: "That is the gap this journal keeps returning to. The quantities exist, they are produced early, and they decide the thing the photographs are of. They are simply not what anyone publishes.",
     },
+    {
+      type: "p",
+      text: "Which is the limit of a page. An elevation flattens the {{finDepth}} to a line, a section cuts it, and neither performs the move the argument needs, which is walking round the thing. The last plate is therefore not a drawing.",
+    },
+    { type: "figure", kind: "ar", caption: "" },
     {
       type: "note",
       text: "The cover study is a fiction, but the proportions and the fin spacing are taken from a real civic building completed in 2019. The practice asked not to be named.",

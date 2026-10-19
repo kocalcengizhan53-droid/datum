@@ -29,10 +29,22 @@ export const MASSING: readonly Volume[] = [
 ]
 
 /** Vertical fins along the south face. They exist to make the raking light legible. */
+/*
+ * The fin screen stands off the south face rather than being buried in it.
+ *
+ * The blades were centred at z 3.72, which put their back faces 140mm inside a glazing line at
+ * 3.60 — so the article's "520 deep" described the blade while the building only showed 380 of
+ * it, and the axonometric could not resolve which was in front of which because the two solids
+ * interpenetrated. A brise-soleil is fixed to the facade, not sunk into it: the back face now
+ * sits on the glazing line and the quoted depth is the projection you would actually measure.
+ */
+const FIN_DEPTH = 0.52
+const SOUTH_FACE = 3.6
+
 export const FINS = Array.from({ length: 14 }, (_, i) => ({
   id: `fin-${i}`,
-  position: [-7.0 + i * 0.82, 3.4, 3.72] as const,
-  size: [0.14, 4.6, 0.52] as const,
+  position: [-7.0 + i * 0.82, 3.4, SOUTH_FACE + FIN_DEPTH / 2] as const,
+  size: [0.14, 4.6, FIN_DEPTH] as const,
 }))
 
 export const GROUND_SIZE = 46

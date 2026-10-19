@@ -1,0 +1,12 @@
+{
+  "scale": "1:50",
+  "page": "https://datum.pages.dev/what-the-fins-are-for/",
+  "qrModules": 33,
+  "qrQuietZone": 4,
+  "widthMm": 341,
+  "heightMm": 190,
+  "depthMm": 224,
+  "parts": 19,
+  "usdzBytes": 69508,
+  "glbBytes": 37536
+}

@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build",
-    "qa": "node qa/shot.mjs && node qa/invisible.mjs && node qa/type.mjs"
+    "qa": "node qa/shot.mjs && node qa/invisible.mjs && node qa/type.mjs && node qa/ar.mjs",
+    "build:ar": "node scripts/build-ar.mjs",
+    "prebuild": "npm run build:ar"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
@@ -34,8 +36,10 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
     "jsdom": "^30.1.3",
+    "jsqr": "^1.4.0",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
+    "qrcode": "^1.5.4",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^5.0.5"

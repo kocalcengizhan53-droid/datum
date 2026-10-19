@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { BODIES } from "@/data/bodies"
+import { FINS, MASSING } from "@/lib/massing"
 import { QUANTITIES, splitQuantities, type QuantityKey } from "@/lib/quantities"
 
 describe("quantities", () => {
@@ -37,10 +38,20 @@ describe("quantities", () => {
     }
   })
 
-  it("agrees with the elevation plate about the overall width", () => {
-    // Both read MASSING; if they ever diverge the drawing and its caption are telling different
-    // stories, which is the one failure this whole mechanism exists to prevent.
-    expect(QUANTITIES.overallWidth.value).toBe("15250")
+  it("measures the overall width across the whole model, not across two volumes", () => {
+    /*
+     * The cantilever is the westmost thing in the building and the plinth the eastmost; neither
+     * is the volume the old derivation picked. It read 15250 for a building 17050 wide, and the
+     * elevation drew its overall dimension from the same two volumes, so the drawing agreed with
+     * the wrong number. Computed here independently of QUANTITIES, so a repeat of that mistake
+     * has to disagree with something.
+     */
+    const parts = [...MASSING, ...FINS]
+    const low = Math.min(...parts.map((p) => p.position[0] - p.size[0] / 2))
+    const high = Math.max(...parts.map((p) => p.position[0] + p.size[0] / 2))
+
+    expect(QUANTITIES.overallWidth.value).toBe(String(Math.round((high - low) * 1000)))
+    expect(QUANTITIES.overallWidth.value).toBe("17050")
   })
 
   it("leaves prose without markers untouched", () => {
