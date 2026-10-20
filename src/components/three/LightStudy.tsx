@@ -172,9 +172,18 @@ function Camera({ pointer, still }: { pointer: React.RefObject<{ x: number; y: n
      * massing inside it without changing the composition on a desktop, where the factor is 1.
      */
     const aspect = size.width / Math.max(1, size.height)
-    const pull = Math.min(1.95, Math.max(1, 1.45 / aspect))
+    const pull = Math.min(1.6, Math.max(1, 1.45 / aspect))
+    /*
+     * Backing off alone made the phone cover a small dim object in a large dark field — the
+     * subject shrank twice over, once to fit the width and again because the composition still
+     * held it low and right for a cover line that on a phone sits above the canvas rather than
+     * across it. So the aim rises as the frame narrows, which drops the massing in frame and
+     * lets it stay large.
+     */
+    const narrow = Math.min(1, Math.max(0, (1.45 - aspect) / 0.75))
 
     scratch.copy(CAMERA_HOME).sub(LOOK_AT).multiplyScalar(pull).add(LOOK_AT)
+    scratch.y += narrow * 2.4
     scratch.x += drift + px * 2.4
     scratch.y -= py * 1.6
     scratch.z -= drift * 0.5
@@ -183,7 +192,7 @@ function Camera({ pointer, still }: { pointer: React.RefObject<{ x: number; y: n
     // Aimed below the middle of the massing, not above it. At 6.2 the target sat level with
     // the cantilever and the plinth ran off the bottom edge of the canvas, so the building was
     // cropped at its own base — which on a cover reads as a mistake rather than as a crop.
-    camera.lookAt(LOOK_AT)
+    camera.lookAt(LOOK_AT.x, LOOK_AT.y + narrow * 2.0, LOOK_AT.z)
   })
   return null
 }
