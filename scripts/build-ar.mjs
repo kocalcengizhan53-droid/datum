@@ -285,7 +285,12 @@ await writeFile(path.join(outDir, "datum-axonometric.svg"), axonometricSvg())
  * sitting on it as a foreign object.
  */
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://datum.pages.dev").replace(/\/$/, "")
-const AR_PAGE = `${SITE_URL}/what-the-fins-are-for/`
+/*
+ * No trailing slash. The static export serves the canonical page at /slug and answers /slug/
+ * with a 308, so a code encoding the slashed form sends every phone through a redirect to
+ * reach a page that was one request away.
+ */
+const AR_PAGE = `${SITE_URL}/what-the-fins-are-for`
 
 const qr = QRCode.create(AR_PAGE, { errorCorrectionLevel: "M" })
 const qrSize = qr.modules.size

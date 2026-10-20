@@ -4,7 +4,7 @@ An architecture journal where the drawings are live and the numbers are not type
 
 Five essays about the parts of a building nobody publishes — the depth of a sun screen, the height of a plinth, the week a decision was actually taken. Eleven plates: a solar study you drag the sun across, a section whose cutting plane you move, a level schedule that re-bases on any line you press, and a 1:50 model you can stand on your own desk in AR.
 
-**Live:** LIVE_URL_PLACEHOLDER
+**Live:** <https://datum-journal-62n.pages.dev>
 
 ![The cover: a solar study at 08:24, with the fin screen raking morning light](docs/cover.png)
 
@@ -79,7 +79,7 @@ npm test             # Vitest
 The deployed URL is baked into the QR at build time:
 
 ```bash
-NEXT_PUBLIC_SITE_URL=https://example.pages.dev npm run build
+NEXT_PUBLIC_SITE_URL=https://datum-journal-62n.pages.dev npm run build
 ```
 
 ## Stack
