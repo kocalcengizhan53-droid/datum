@@ -11,7 +11,7 @@
  */
 /* eslint-disable react-hooks/immutability */
 
-import { Canvas, useFrame } from "@react-three/fiber"
+import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import { useCallback, useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 
@@ -36,15 +36,104 @@ const MIN_X = -9.5
 const MAX_X = 8.2
 const START = -1.4
 
-function Scene({ cut }: { cut: React.RefObject<number> }) {
+/** Everything the plane can cut, in one list, so the poché is built from the same geometry. */
+const SOLIDS = [
+  ...MASSING.map((v) => ({ id: v.id, position: v.position, size: v.size })),
+  ...FINS.map((f) => ({ id: f.id, position: f.position, size: f.size })),
+]
+
+/**
+ * The poché: the face of the material the plane passes through, filled solid.
+ *
+ * Without it this plate was a section that did not look like one. The geometry was being
+ * clipped correctly — the west half of the model really was gone — but the exposed face read
+ * as an ordinary wall, because a double-sided box interior is lit like any other surface. A
+ * section drawing fills what it cuts, and that fill is the entire convention that lets a
+ * reader tell cut material from what is standing behind it.
+ *
+ * One plane per solid, parked at the cut and hidden when the cut has left the solid. They are
+ * not themselves clipped, and they are unlit, so the poché stays a flat value at every hour
+ * the key light moves through.
+ */
+function Poche({ cut }: { cut: React.RefObject<number> }) {
+  const group = useRef<THREE.Group>(null)
+
+  useFrame(() => {
+    const g = group.current
+    if (!g) return
+    const x = cut.current
+    g.children.forEach((child, i) => {
+      const solid = SOLIDS[i]
+      const half = solid.size[0] / 2
+      const inside = x > solid.position[0] - half && x < solid.position[0] + half
+      child.visible = inside
+      /*
+       * A hair to the WEST of the plane, which is the side the camera is on. Offset east, the
+       * cap sits inside the solid it is meant to cap and is never seen — which is how the
+       * first version shipped a section with no poché in it at all.
+       */
+      if (inside) child.position.setX(x - 0.006)
+    })
+  })
+
+  return (
+    <group ref={group}>
+      {SOLIDS.map((solid) => (
+        <mesh
+          key={solid.id}
+          position={[0, solid.position[1], solid.position[2]]}
+          rotation={[0, -Math.PI / 2, 0]}
+          visible={false}
+        >
+          <planeGeometry args={[solid.size[2], solid.size[1]]} />
+          <meshBasicMaterial color="#f2ece0" side={THREE.DoubleSide} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+/*
+ * An orthographic zoom fixed in pixels frames a different amount of building at every width.
+ * At 390 the plate was a close-up of one poché face filling the canvas. Fitting the zoom to
+ * the canvas width keeps the same slice of world in frame on a phone and on a desk, which is
+ * what a drawing at a stated scale means.
+ */
+const VIEW_W = 28
+const VIEW_H = 13
+
+function Fit() {
+  const { camera, size } = useThree()
+  useFrame(() => {
+    const ortho = camera as THREE.OrthographicCamera
+    // Whichever axis runs out first. Fitting width alone left the model small in a tall frame
+    // on a phone and a close-up of one poché face when the zoom was fixed in pixels.
+    const zoom = Math.min(size.width / VIEW_W, size.height / VIEW_H)
+    if (Math.abs(ortho.zoom - zoom) > 0.01) {
+      ortho.zoom = zoom
+      ortho.updateProjectionMatrix()
+    }
+  })
+  return null
+}
+
+function Scene({ cut, start }: { cut: React.RefObject<number>; start: number }) {
   // A value, not a ref: the plane object never changes identity, only its constant, and reading
   // a ref during render is both a lint error and the thing that breaks under memoisation.
-  const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(-1, 0, 0), -START), [])
+  /*
+   * The plane keeps what is EAST of the cut, and the camera stands to the west.
+   *
+   * It was the other way round: the clip kept the western half, so the cut face pointed away
+   * from the camera and every frame of this plate was the outside of the remaining solid. The
+   * poché was being drawn the whole time, correctly, on a face nobody could see. A section is
+   * a view of the cut, and the viewer has to be standing in the part that was removed.
+   */
+  const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(1, 0, 0), -start), [start])
   const clip = useMemo(() => [plane], [plane])
   const marker = useRef<THREE.Mesh>(null)
 
   useFrame(() => {
-    plane.constant = cut.current
+    plane.constant = -cut.current
     marker.current?.position.setX(cut.current)
   })
 
@@ -86,17 +175,38 @@ function Scene({ cut }: { cut: React.RefObject<number> }) {
         </mesh>
       </group>
 
+      <Poche cut={cut} />
+
       {/* Where the cut is, drawn as a cutting plane rather than implied by the absence of solid. */}
-      <mesh ref={marker} position={[START, 5.5, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[18, 13]} />
-        <meshBasicMaterial color="#e8a04a" transparent opacity={0.07} side={THREE.DoubleSide} />
+      <mesh ref={marker} position={[start, 4.2, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <planeGeometry args={[11, 8]} />
+        <meshBasicMaterial color="#e8a04a" transparent opacity={0.045} side={THREE.DoubleSide} />
       </mesh>
     </>
   )
 }
 
-export function SectionStudy({ caption, plate }: { caption: React.ReactNode; plate: number }) {
-  const cut = useRef(START)
+/*
+ * The cut is a prop, not a module constant.
+ *
+ * Two articles printed this plate and, because START was fixed, they printed pixel-identical
+ * drawings with different captions under them. A section is an argument about where you cut;
+ * a journal that prints the same cut twice is making that argument once and billing for it
+ * twice.
+ */
+export function SectionStudy({
+  caption,
+  plate,
+  start = START,
+  elevation = 7.4,
+}: {
+  caption: React.ReactNode
+  plate: number
+  start?: number
+  /** Camera height. A cut through the plinth wants a lower eye than one through the screen. */
+  elevation?: number
+}) {
+  const cut = useRef(start)
   const readout = useRef<HTMLSpanElement>(null)
   const track = useRef<HTMLDivElement>(null)
   const surface = useRef<HTMLDivElement>(null)
@@ -142,8 +252,8 @@ export function SectionStudy({ caption, plate }: { caption: React.ReactNode; pla
   }
 
   useEffect(() => {
-    write(START)
-  }, [write])
+    write(start)
+  }, [write, start])
 
   const fromX = (clientX: number, box: DOMRect) =>
     MIN_X + ((clientX - box.left) / box.width) * (MAX_X - MIN_X)
@@ -182,18 +292,19 @@ export function SectionStudy({ caption, plate }: { caption: React.ReactNode; pla
           // Set here rather than mutating the renderer from an effect: useThree returns a hook
           // value, and assigning to it is both a lint error and an unnecessary round trip.
           gl={{ localClippingEnabled: true }}
-          camera={{ position: [-26, 7.4, 16], zoom: 34, near: -80, far: 160 }}
+          camera={{ position: [-26, elevation, 16], zoom: 34, near: -80, far: 160 }}
           onCreated={({ camera }) => camera.lookAt(0, 4.4, 0)}
         >
           <color attach="background" args={["#121109"]} />
-          <Scene cut={cut} />
+          <Fit />
+          <Scene cut={cut} start={start} />
         </Canvas>
 
         <div ref={track} className="pointer-events-none absolute inset-x-5 bottom-5">
           <div className="flex items-end justify-between pb-2">
             <span className="instrument">drag to move the cut</span>
             <span className="tnum text-sun-ink font-mono text-xs">
-              <span ref={readout}>−1.4 m</span>
+              <span ref={readout}>{`${start >= 0 ? "+" : "−"}${Math.abs(start).toFixed(1)} m`}</span>
             </span>
           </div>
           <div className="bg-rule-strong relative h-px w-full">

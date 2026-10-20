@@ -7,7 +7,7 @@ export type Block =
   | { type: "p"; text: string }
   | { type: "h"; text: string }
   | { type: "pull"; text: string }
-  | { type: "figure"; kind: "section" | "elevation" | "ar"; caption: string }
+  | { type: "figure"; kind: "section" | "elevation" | "ar"; caption: string; cut?: number }
   | { type: "levels" }
   | { type: "approach" }
   | { type: "programme" }
@@ -248,8 +248,9 @@ export const BODIES: Record<string, readonly Block[]> = {
     {
       type: "figure",
       kind: "section",
+      cut: 4.6,
       caption:
-        "Everything in the cover study is measured from a line {{plinthHeight}} below the plinth top. Move the cut and watch what the line does to the reading of the ground.",
+        "Everything in the cover study is measured from a line {{plinthHeight}} below the plinth top. Cut east of the screen and the plinth is the only thing the ground has to meet. Move it and watch what the line does to the reading of the ground.",
     },
     { type: "h", text: "Zero is a position" },
     {

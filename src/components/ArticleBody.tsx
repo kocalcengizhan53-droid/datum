@@ -144,7 +144,15 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
             if (block.kind === "elevation")
               return <ElevationPlate key={i} plate={number} refersTo={sectionPlate} />
             if (block.kind === "ar") return <ArPlate key={i} plate={number} />
-            return <SectionStudy key={i} caption={<Prose text={block.caption} at={`${i}:${"text" in block ? 1 : 0}`} firstDim={firstDim} />} plate={number} />
+            return (
+              <SectionStudy
+                key={i}
+                caption={<Prose text={block.caption} at={`${i}:${"text" in block ? 1 : 0}`} firstDim={firstDim} />}
+                plate={number}
+                start={block.cut}
+                elevation={block.cut === undefined ? undefined : 5.6}
+              />
+            )
           }
 
           default: {
