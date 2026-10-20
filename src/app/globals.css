@@ -55,6 +55,16 @@
   --surface-raised: var(--color-stone-900);
 
   --fg: var(--color-stone-100);
+  /*
+   * The reading value, one step below the display value.
+   *
+   * Measured across an article, h1, h2, the lead, every body paragraph and the pull quote were
+   * all lab(93.16) — four thousand pixels of reading at a single value, so the hierarchy was
+   * carried entirely by size. Dropping running text one step gives the headings somewhere to
+   * be brighter than and takes the glare off a long read on a dark sheet. Still far above the
+   * contrast floor: stone-200 on the sheet is about 15:1.
+   */
+  --fg-body: var(--color-stone-200);
   --fg-muted: var(--color-stone-400);
   --fg-faint: var(--color-stone-500);
 
@@ -75,6 +85,7 @@
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
   --color-fg: var(--fg);
+  --color-fg-body: var(--fg-body);
   --color-fg-muted: var(--fg-muted);
   --color-fg-faint: var(--fg-faint);
   --color-rule: var(--rule);

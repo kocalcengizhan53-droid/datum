@@ -32,7 +32,7 @@ import {
 
 const MARGIN_MM = 900
 const VIEW_W = (BUILDING_WIDTH_MM + MARGIN_MM * 2) / 1000
-const ROW_H = 1.9
+const ROW_H = 2.25
 const DIM_H = 0.62
 const VIEW_H = ROW_H * 2 + DIM_H
 
@@ -125,20 +125,26 @@ const px = (x: number) => `${(x / VIEW_W) * 100}%`
 const py = (y: number) => `${(y / VIEW_H) * 100}%`
 
 function Tag({
-  x,
   y,
   children,
   tone = "faint",
 }: {
-  x: number
   y: number
   children: React.ReactNode
   tone?: "faint" | "sun"
 }) {
   return (
     <span
-      className={`instrument absolute -translate-y-full whitespace-nowrap ${tone === "sun" ? "text-sun-ink" : ""}`}
-      style={{ right: `calc(100% - ${px(x)})`, top: py(y) }}
+      /*
+       * Left, in the empty two-thirds, and knocked out of whatever it crosses.
+       *
+       * Right-aligned against the plinth these ran through the thing they named — STAIR 1.5 M
+       * across the treads, RAMP 19.5 M along the ramp line — and once knocked out they hid the
+       * stair instead. Everything in this drawing happens at the right-hand end; the label for
+       * a dimension that runs off the sheet belongs at the end it runs off.
+       */
+      className={`instrument bg-bg-deep absolute -translate-y-full whitespace-nowrap pr-1 ${tone === "sun" ? "text-sun-ink" : ""}`}
+      style={{ left: px(0.3), top: py(y) }}
     >
       {children}
     </span>
@@ -188,13 +194,13 @@ export function ApproachSection({ plate }: { plate: number }) {
           <Row groundY={rampGround} riseM={riseM} points={rampPoints(riseM, rampGround)} overflows={overflows} />
         </svg>
 
-        <Tag x={PLINTH_FACE - 0.2} y={0.28}>
+        <Tag y={0.3}>
           building {(BUILDING_WIDTH_MM / 1000).toFixed(2)} m
         </Tag>
-        <Tag x={PLINTH_FACE - 0.2} y={stairGround + 0.28}>
+        <Tag y={stairGround + 0.3}>
           stair {(a.stairGoingMm / 1000).toFixed(1)} m
         </Tag>
-        <Tag x={PLINTH_FACE - 0.2} y={rampGround + 0.28} tone={overflows ? "sun" : "faint"}>
+        <Tag y={rampGround + 0.3} tone={overflows ? "sun" : "faint"}>
           ramp {(a.rampTotalMm / 1000).toFixed(1)} m
         </Tag>
         </div>

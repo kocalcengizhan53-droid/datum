@@ -161,7 +161,7 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
             return (
               <p
                 key={i}
-                className={`mb-6 max-w-[62ch] text-pretty ${isLead ? "lead" : "text-lg"}`}
+                className={`text-fg-body mb-6 max-w-[62ch] text-pretty ${isLead ? "lead" : "text-lg"}`}
               >
                 <Prose text={block.text} at={`${i}:0`} firstDim={firstDim} />
               </p>
