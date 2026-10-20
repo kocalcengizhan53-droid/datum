@@ -1,7 +1,7 @@
 "use client"
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
-import { ContactShadows, Environment, Sparkles } from "@react-three/drei"
+import { ContactShadows, Environment, Lightformer, Sparkles } from "@react-three/drei"
 import { useCallback, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
@@ -272,7 +272,40 @@ export function LightStudy() {
         <Massing />
         <Air hour={hour} />
         <ContactShadows position={[0, 0.01, 0]} opacity={0.5} scale={44} blur={2.4} far={9} />
-        <Environment preset="night" environmentIntensity={0.22} />
+        {/*
+          The environment is built here, not downloaded.
+
+          This was <Environment preset="night" />, which fetches a 1K HDR from raw.githack.com
+          and suspends the entire Canvas subtree until it resolves. Measured on a loaded
+          machine, seven loads in eight showed a black cover — not a degraded scene, nothing at
+          all, because everything inside the Canvas was suspended behind someone else's CDN. On
+          the one page a portfolio gets judged by, in three seconds.
+
+          Two lightformers rendered to a 256px cube give the glazing something to reflect at no
+          network cost. frames={1} bakes it once, because nothing in the environment moves.
+        */}
+        <Environment resolution={256} frames={1} environmentIntensity={0.3}>
+          <Lightformer
+            intensity={0.9}
+            color="#5878b4"
+            position={[0, 8, -12]}
+            scale={[24, 12, 1]}
+          />
+          <Lightformer
+            intensity={0.35}
+            color="#2b3340"
+            position={[-12, 3, 8]}
+            scale={[16, 10, 1]}
+            rotation={[0, Math.PI / 3, 0]}
+          />
+          <Lightformer
+            intensity={0.5}
+            color="#6b5433"
+            position={[10, 1.5, 6]}
+            scale={[14, 6, 1]}
+            rotation={[0, -Math.PI / 4, 0]}
+          />
+        </Environment>
         <Camera pointer={pointer} still={reduced} />
       </Canvas>
 

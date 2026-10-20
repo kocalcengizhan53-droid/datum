@@ -61,7 +61,28 @@ for (const view of views) {
   page.on("console", (m) => m.type() === "error" && problems.push(`${label}: ${m.text()}`))
   page.on("pageerror", (e) => problems.push(`${label}: ${e.message}`))
 
-  await page.goto(BASE + path, { waitUntil: "networkidle" })
+  /*
+   * Nothing on this site may be fetched from somewhere else.
+   *
+   * The cover carried <Environment preset="night" />, which pulls a 1K HDR from
+   * raw.githack.com and suspends the whole Canvas subtree until it lands. Seven loads in eight
+   * showed a black cover on a loaded machine — the hero of a portfolio, waiting on a third
+   * party. The lit check above did not catch it for a precise reason: it navigated with
+   * waitUntil "networkidle", which waits for exactly that fetch to finish. It was measuring a
+   * condition no visitor is in.
+   *
+   * So the page is loaded the way a visitor loads it, and any request leaving localhost is a
+   * failure on its own, whatever the pixels say.
+   */
+  const offsite = []
+  page.on("request", (r) => {
+    const url = r.url()
+    if (!url.startsWith(BASE) && !url.startsWith("data:") && !url.startsWith("blob:")) {
+      offsite.push(url)
+    }
+  })
+
+  await page.goto(BASE + path, { waitUntil: "load" })
 
   /*
    * Not every page has WebGL on it any more. Three of the articles are drawn entirely in SVG,
@@ -133,11 +154,15 @@ for (const view of views) {
     if (richest < 24) problems.push(`${label}: no canvas on the page is lit (best ${richest} tones)`)
   }
 
+  if (offsite.length) {
+    problems.push(`${label}: ${offsite.length} off-site request(s), first ${offsite[0].slice(0, 90)}`)
+  }
+
   await page.screenshot({ path: `qa/out/${slug}-${view.name}.png`, fullPage: true })
 
   const motion = await browser.newContext({ viewport: view, deviceScaleFactor: 2 })
   const livePage = await motion.newPage()
-  await livePage.goto(BASE + path, { waitUntil: "networkidle" })
+  await livePage.goto(BASE + path, { waitUntil: "load" })
   await livePage.waitForTimeout(1600)
   await livePage.screenshot({ path: `qa/out/${slug}-${view.name}-live.png` })
   await motion.close()
