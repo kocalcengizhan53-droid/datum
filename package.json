@@ -42,7 +42,8 @@
     "qrcode": "^1.5.4",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "wrangler": "^4.151.3"
   },
   "devEngines": {
     "runtime": {
