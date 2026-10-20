@@ -20,7 +20,7 @@ import { BODIES, type Block } from "@/data/bodies"
  * types instead would mean every new component has to remember to add itself here, and the one
  * that forgot would make the article look better while the guard said it had not changed.
  */
-const WORDS_ONLY = new Set<Block["type"]>(["p", "h", "pull", "note"])
+const WORDS_ONLY = new Set<Block["type"]>(["p", "h", "pull", "note", "aside"])
 const isVisual = (block: Block) => !WORDS_ONLY.has(block.type)
 const isProse = (block: Block) => block.type === "p"
 

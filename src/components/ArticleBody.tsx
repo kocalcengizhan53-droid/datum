@@ -48,6 +48,23 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
   const sectionPlate = plates.indexOf(sectionIndex) + 1
 
   /*
+   * Where each quantity is first stated, so exactly one <Dim> per key carries the id the
+   * gutter's schedule links to. Computed here rather than tracked with a mutable set during
+   * render, which would give a different answer the second time the list rendered.
+   */
+  const firstDim: Record<string, string> = {}
+  blocks.forEach((block, bi) => {
+    const fields = ("text" in block ? [block.text] : []).concat(
+      "caption" in block ? [block.caption] : [],
+    )
+    fields.forEach((field, fi) => {
+      splitQuantities(field).forEach((part, pi) => {
+        if (pi % 2 === 1 && !(part in firstDim)) firstDim[part as string] = `${bi}:${fi}:${pi}`
+      })
+    })
+  })
+
+  /*
    * The measure belongs to the text, not to the container.
    *
    * Capping the whole body at 62ch capped the plates too, so a drawing of a building got the
@@ -55,8 +72,13 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
    * each prose block carries the measure and the figures take the column, which is how a page
    * with figures on it is actually set.
    */
+  /*
+   * Capped at the measure plus one margin column. Uncapped, a floated sidenote went to the far
+   * right of a 1fr track and sat 290px clear of the sentence it annotates, which reads as two
+   * unrelated columns rather than as a note in a margin.
+   */
   return (
-    <div className="prose-fig">
+    <div className="prose-fig max-w-[56rem]">
       {blocks.map((block, i) => {
         switch (block.type) {
           case "h":
@@ -64,7 +86,7 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
               <section key={i} className="mt-14 max-w-[62ch]">
                 <span aria-hidden="true" className="bg-rule-strong draw-x block h-px w-full origin-left" />
                 <h2 className="mt-4 mb-5 text-2xl font-medium text-balance">
-                  <Prose text={block.text} />
+                  <Prose text={block.text} at={`${i}:0`} firstDim={firstDim} />
                 </h2>
               </section>
             )
@@ -75,11 +97,18 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
                 <span aria-hidden="true" className="bg-sun/60 draw-x block h-px w-2/3 origin-left" />
                 <blockquote className="py-5">
                   <p className="text-xl text-balance">
-                    <Prose text={block.text} />
+                    <Prose text={block.text} at={`${i}:0`} firstDim={firstDim} />
                   </p>
                 </blockquote>
                 <span aria-hidden="true" className="bg-sun/25 draw-x block h-px w-1/3 origin-left" />
               </figure>
+            )
+
+          case "aside":
+            return (
+              <aside key={i} className="sidenote">
+                <Prose text={block.text} at={`${i}:0`} firstDim={firstDim} />
+              </aside>
             )
 
           case "note":
@@ -87,7 +116,7 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
               <aside key={i} className="mt-14 max-w-[62ch]">
                 <span aria-hidden="true" className="bg-rule draw-x block h-px w-full origin-left" />
                 <p className="text-fg-faint pt-4 text-sm">
-                  <Prose text={block.text} />
+                  <Prose text={block.text} at={`${i}:0`} firstDim={firstDim} />
                 </p>
               </aside>
             )
@@ -108,22 +137,28 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
             return <PlinthSurvey key={i} plate={plates.indexOf(i) + 1} />
 
           case "dimension":
-            return <Dimension key={i} value={block.value} caption={<Prose text={block.caption} />} />
+            return <Dimension key={i} value={block.value} caption={<Prose text={block.caption} at={`${i}:${"text" in block ? 1 : 0}`} firstDim={firstDim} />} />
 
           case "figure": {
             const number = plates.indexOf(i) + 1
             if (block.kind === "elevation")
               return <ElevationPlate key={i} plate={number} refersTo={sectionPlate} />
             if (block.kind === "ar") return <ArPlate key={i} plate={number} />
-            return <SectionStudy key={i} caption={<Prose text={block.caption} />} plate={number} />
+            return <SectionStudy key={i} caption={<Prose text={block.caption} at={`${i}:${"text" in block ? 1 : 0}`} firstDim={firstDim} />} plate={number} />
           }
 
-          default:
+          default: {
+            // The first paragraph of the article, wherever it happens to sit in the array.
+            const isLead = i === blocks.findIndex((b) => b.type === "p")
             return (
-              <p key={i} className="mb-6 max-w-[62ch] text-lg text-pretty">
-                <Prose text={block.text} />
+              <p
+                key={i}
+                className={`mb-6 max-w-[62ch] text-pretty ${isLead ? "lead" : "text-lg"}`}
+              >
+                <Prose text={block.text} at={`${i}:0`} firstDim={firstDim} />
               </p>
             )
+          }
         }
       })}
     </div>
@@ -140,11 +175,24 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
  * raw marker — the build-time guard protected the one place a marker was least likely to be
  * wrong and left the rest open.
  */
-function Prose({ text }: { text: string }) {
+function Prose({
+  text,
+  at,
+  firstDim,
+}: {
+  text: string
+  /** "<block>:<field>" — identifies this run of prose so the first Dim can be found again. */
+  at?: string
+  firstDim?: Record<string, string>
+}) {
   return (
     <>
       {splitQuantities(text).map((part, i) =>
-        i % 2 === 0 ? part : <Dim key={i} name={part as never} />,
+        i % 2 === 0 ? (
+          part
+        ) : (
+          <Dim key={i} name={part as never} anchor={firstDim?.[part as string] === `${at}:${i}`} />
+        ),
       )}
     </>
   )

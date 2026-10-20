@@ -3,6 +3,7 @@
 import { useState } from "react"
 
 import { PlateFrame } from "@/components/three/plates/PlateFrame"
+import { PLATE_TITLES } from "@/lib/plates"
 import { ATTEMPTS, type Phase } from "@/data/reuse"
 
 /**
@@ -57,7 +58,7 @@ export function ProgrammeStrip({ plate }: { plate: number }) {
   const phase = attempt.phases.find((p) => p.id === phaseId) ?? attempt.phases[0]
 
   return (
-    <PlateFrame plate={plate} type="programme · weeks" hint="move the paperwork" caption={phase.note}>
+    <PlateFrame plate={plate} type={PLATE_TITLES.programme} hint="move the paperwork" caption={phase.note}>
       <div className="space-y-5 p-5">
         <div role="group" aria-label="When the paperwork happened" className="flex flex-wrap gap-x-6 gap-y-2">
           {ATTEMPTS.map((a) => (

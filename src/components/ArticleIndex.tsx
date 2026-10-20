@@ -1,41 +1,80 @@
 import Link from "next/link"
 import { ViewTransition } from "react"
 
+import { BODIES } from "@/data/bodies"
 import { ARTICLES, readingMinutes } from "@/data/issue"
+import { plateRegister } from "@/lib/plates"
 
+/**
+ * The contents, as a drawing list.
+ *
+ * Each row was a number, a title and a standfirst inside a 62ch cap, with the right half of
+ * the page left black — the same emptiness as the article pages and for the same reason. A
+ * contents page in a journal of drawings should say which drawings are in each piece, so the
+ * third column is that article's register, derived from its own blocks. It fills the row with
+ * the one thing a reader scanning an issue actually wants to know.
+ */
 export function ArticleIndex() {
   return (
-    <section aria-label="In this issue" className="px-6 sm:px-10">
+    <section aria-label="In this issue" className="mx-auto w-full max-w-[94rem] px-6 sm:px-10">
       <ol>
-        {ARTICLES.map((article, index) => (
-          <li key={article.slug} className="border-rule border-b last:border-0">
-            <Link
+        {ARTICLES.map((article, index) => {
+          const register = plateRegister(BODIES[article.slug] ?? [])
+          return (
+            <li key={article.slug} className="border-rule border-b last:border-0">
+              <Link
                 href={`/${article.slug}`}
-                className="group grid gap-x-10 gap-y-3 py-8 md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]"
-            >
+                className="group grid gap-x-12 gap-y-4 py-9 lg:grid-cols-[minmax(0,9rem)_minmax(0,1fr)_minmax(0,18rem)]"
+              >
                 <div className="flex h-fit items-baseline gap-4">
                   <span className="instrument tnum">{String(index + 1).padStart(2, "0")}</span>
                   <span className="mark">{article.kicker}</span>
-                  {/* A rule that draws itself on hover, left to right. */}
-                  <span
-                    aria-hidden="true"
-                    className="bg-sun ml-auto hidden h-px w-0 self-center transition-[width] duration-500 ease-[var(--ease-out-expo)] group-hover:w-24 md:block"
-                  />
                 </div>
-                <div className="max-w-[62ch]">
+
+                <div>
                   <ViewTransition name={`title-${article.slug}`} share="morph" default="none">
-                    <h2 className="group-hover:text-sun-ink text-3xl font-medium text-balance transition-colors duration-300">
+                    <h2 className="group-hover:text-sun-ink max-w-[15ch] text-4xl font-medium text-balance transition-colors duration-300 lg:text-5xl">
                       {article.title}
                     </h2>
                   </ViewTransition>
-                  <p className="text-fg-muted prose-fig mt-3 text-lg text-pretty">{article.standfirst}</p>
+                  <p className="text-fg-muted prose-fig mt-4 max-w-[44ch] text-lg text-pretty">
+                    {article.standfirst}
+                  </p>
                   <p className="mark mt-4">
                     {article.author} · {readingMinutes(article.slug)} min
                   </p>
                 </div>
+
+                <div className="lg:border-rule h-fit lg:border-l lg:pl-6">
+                  <p className="instrument border-rule-strong flex items-baseline justify-between border-b pb-2">
+                    <span>Plates</span>
+                    <span className="tnum">{String(register.length).padStart(2, "0")}</span>
+                  </p>
+                  <ol>
+                    {register.map((plate, i) => (
+                      <li key={plate.kind} className="border-rule flex items-baseline gap-3 border-b py-1.5">
+                        <span className="instrument tnum text-sun-ink/70 shrink-0">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        {/* The register is read on the way past, not clicked: the whole row is
+                            already one link to the article the plates are in. */}
+                        <span className="text-fg-faint group-hover:text-fg-muted text-xs transition-colors">
+                          {plate.title}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                  {/* The rule that draws itself on hover, moved here where it terminates the
+                      register rather than floating in an empty column. */}
+                  <span
+                    aria-hidden="true"
+                    className="bg-sun mt-2 block h-px w-0 transition-[width] duration-500 ease-[var(--ease-out-expo)] group-hover:w-full"
+                  />
+                </div>
               </Link>
-          </li>
-        ))}
+            </li>
+          )
+        })}
       </ol>
     </section>
   )

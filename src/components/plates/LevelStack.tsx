@@ -3,6 +3,7 @@
 import { useState } from "react"
 
 import { PlateFrame } from "@/components/three/plates/PlateFrame"
+import { PLATE_TITLES } from "@/lib/plates"
 import { BENCHMARK_AOD, LEVELS, OWNERS, type Level } from "@/data/levels"
 
 /**
@@ -128,7 +129,7 @@ export function LevelStack({ plate }: { plate: number }) {
   return (
     <PlateFrame
       plate={plate}
-      type="level schedule · press to re-base"
+      type={PLATE_TITLES.levels}
       hint="press a level"
       caption={zero.note}
     >

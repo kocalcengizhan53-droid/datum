@@ -20,7 +20,11 @@ export function PlateFrame({
   children: React.ReactNode
 }) {
   return (
-    <figure className="border-rule bg-bg-deep my-12 overflow-hidden rounded-md border">
+    <figure
+      id={`plate-${plate}`}
+      /* scroll-mt keeps a jumped-to plate clear of the reading-progress rule at the top. */
+      className="border-rule bg-bg-deep my-12 scroll-mt-8 overflow-hidden rounded-md border"
+    >
       <div className="border-rule flex items-baseline justify-between border-b px-5 py-2.5">
         <span className="instrument tnum text-sun-ink">Plate {String(plate).padStart(2, "0")}</span>
         <span className="instrument">{type}</span>

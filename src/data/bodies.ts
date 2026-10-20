@@ -15,12 +15,18 @@ export type Block =
   | { type: "survey" }
   | { type: "dimension"; value: string; caption: string }
   | { type: "note"; text: string }
+  /** A qualification set in the margin, beside the sentence it qualifies. */
+  | { type: "aside"; text: string }
 
 export const BODIES: Record<string, readonly Block[]> = {
   "what-the-fins-are-for": [
     {
       type: "p",
       text: "The fins on the south elevation of the building in this issue's cover study are {{finDepth}} deep and spaced at {{finPitch}} centres. Nobody chose those numbers for how they look. They are the output of a cooling load calculation run in the second month of the project, before the practice had drawn an elevation at all, and they are the reason the plant room is one storey rather than two.",
+    },
+    {
+      type: "aside",
+      text: "A cooling load is the heat a building has to shed to stay at temperature on its worst day. It sizes the plant, the plant sizes the plant room, and the plant room is the first thing to be cut.",
     },
     {
       type: "p",
@@ -69,6 +75,10 @@ export const BODIES: Record<string, readonly Block[]> = {
       text: "Ask three practices for a shading strategy and you will get three elevations and no numbers. Ask for the cooling load with and without, and two of the three will send it the next week, which tells you they had it all along and did not think you wanted it. The third will not send it at all.",
     },
     {
+      type: "aside",
+      text: "We put this to eleven practices over two years. Six answered, three of them with the model as well as the figure. It is not a sample; it is what was shared.",
+    },
+    {
       type: "p",
       text: "The elevations are not useless. They are just answering a different question. An elevation is a statement about composition — rhythm, proportion, where the eye rests — and on a screen like this one it is the drawing that cannot show the thing the screen is for. A fin seen square on is a line. Its depth, which is the entire mechanism, projects toward you and collapses to nothing.",
     },
@@ -91,6 +101,10 @@ export const BODIES: Record<string, readonly Block[]> = {
     {
       type: "p",
       text: "Eleven civic buildings, all completed since 2015, all on a plinth. The heights run from 600 millimetres to 1.4 metres and cluster hard at {{plinthHeight}}. When we asked the architects why, nine said some version of presence, two said drainage, and none could produce a drawing where the decision was made.",
+    },
+    {
+      type: "aside",
+      text: "The eleven are publicly funded civic buildings completed between 2015 and 2024 in the United Kingdom and Ireland, chosen because the practice still held files from before planning. Sites on flood plains were excluded.",
     },
     { type: "survey" },
     {
@@ -182,6 +196,10 @@ export const BODIES: Record<string, readonly Block[]> = {
       type: "p",
       text: "So you test. Testing means cutting coupons out of the member, which means the member is shorter, which means either the grid changes or the coupon comes from the part you were going to cut off anyway, which is the part that tells you least. Three coupons per batch is the usual ask. On the second of the three buildings that came to eleven thousand pounds of testing to release about sixty tonnes of steel, and the number that made it work was not the carbon. It was that the replacement sections had a fourteen-week lead time and the testing took three.",
     },
+    {
+      type: "aside",
+      text: "Costs are as reported by the contractors and have not been independently audited. The testing figure covers coupons, laboratory time and the engineer's assessment, and not the programme it bought.",
+    },
     { type: "programme" },
     {
       type: "p",
@@ -195,6 +213,10 @@ export const BODIES: Record<string, readonly Block[]> = {
     {
       type: "p",
       text: "Every structural engineer we spoke to during the three projects gave a version of the same answer. They are not against reuse. They are against signing for a member whose provenance is a photograph. The liability for a frame sits with one named individual for the life of the building, and that individual has no mechanism for sharing it with the 1974 fabricator.",
+    },
+    {
+      type: "aside",
+      text: "Professional indemnity cover follows the person who signed, for as long as the building stands and then some. It is why an engineer's caution is arithmetic rather than timidity.",
     },
     {
       type: "p",
@@ -247,10 +269,18 @@ export const BODIES: Record<string, readonly Block[]> = {
       type: "p",
       text: "A datum also has to survive being handed over. On a project of any size there are at least four of them in play: the architect's, which is usually the finished floor; the engineer's, which is usually the top of the structural slab, a construction depth lower; the surveyor's, which is a national grid level; and the contractor's peg, which is a mark on a wall at the edge of the site and is the only one anybody actually builds to.",
     },
+    {
+      type: "aside",
+      text: "Ordnance Datum is mean sea level at Newlyn, averaged from hourly readings taken between 1915 and 1921. Every level in the country is quoted against a tide gauge from a century ago.",
+    },
     { type: "levels" },
     {
       type: "p",
       text: "Each conversion is a subtraction, and each subtraction is a place to be out by the depth of a screed. We have seen this go wrong twice at the same point: a drainage invert set from the structural datum against a threshold set from the finished floor, discovered when the water went the wrong way across a terrace. Both times the drawings were individually correct. Neither set said which zero it was using, because both thought it was obvious.",
+    },
+    {
+      type: "aside",
+      text: "Both sets of drawings were individually correct, which is the part worth sitting with. Nothing was drawn wrong. The error lived entirely in the space between two sheets that each knew what they meant.",
     },
     {
       type: "p",
@@ -300,6 +330,10 @@ export const BODIES: Record<string, readonly Block[]> = {
       text: "Take the three in order. Rotating a block on a loose site costs a drawing. On a tight urban site it costs nothing at all, because the rotation is already fixed by the street and the only decision left is which rooms face which way — also a drawing. The cost of getting orientation right is the cost of thinking about it on the correct afternoon.",
     },
     {
+      type: "aside",
+      text: "On a site with one possible footprint this term is already spent and the argument moves to the second. That is not a counter-example; it is the same rule with the first lever bolted down.",
+    },
+    {
       type: "p",
       text: "Mass costs a little more. A heavier floor build-up or an exposed soffit in place of a suspended ceiling is a real decision with a real price, and it conflicts with acoustics and with services routing. But it is a decision about a build-up, taken once, early, and it is substantially cheaper than the plant it displaces.",
     },
@@ -333,6 +367,10 @@ export const BODIES: Record<string, readonly Block[]> = {
     {
       type: "p",
       text: "The practices that escape it do one thing in common, and it is not virtue. They produce a number in the first fortnight — a peak load, a glazing ratio, a free-running hours count — and they put it in front of the client before there is an image to look at. Once a number is on the table it has to be argued with, and arguing with it is the design.",
+    },
+    {
+      type: "aside",
+      text: "Free-running hours is the count of hours a year a space stays inside its comfort band with the plant off. It is the one figure that gets cheaper to improve the earlier it is asked for.",
     },
     {
       type: "p",

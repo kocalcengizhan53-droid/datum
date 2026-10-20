@@ -179,6 +179,55 @@
     color: var(--fg-faint);
   }
 
+  /*
+   * A sidenote, in the margin the page was wasting.
+   *
+   * Floated rather than positioned: a float keeps its place in the flow, so a note stays beside
+   * the sentence it qualifies through every reflow, with no measurement and no JavaScript. It
+   * does not overlap the measure because the prose blocks are capped at 62ch and the float sits
+   * outside that cap — but only once the column is wide enough to hold both, which is why it
+   * starts at the xl breakpoint and is an ordinary ruled aside below it. A note that overlaps
+   * the text it annotates is worse than a note at the bottom.
+   */
+  .sidenote {
+    border-top: 1px solid var(--rule-strong);
+    padding-top: 0.6rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--fg-faint);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+  }
+  @media (width >= 80rem) {
+    .sidenote {
+      float: right;
+      clear: right;
+      width: 15rem;
+      margin-top: 0.4rem;
+      margin-left: 2.5rem;
+    }
+  }
+
+  /*
+   * The opening.
+   *
+   * An article began with a paragraph identical to its ninth, which is what made the pages read
+   * as a document rather than as something set. The first line goes to true small caps in the
+   * text face — the incipit, which is how a review has marked the start of a piece for about
+   * four hundred years — and the paragraph takes a slightly larger size. No drop cap: this
+   * journal's voice is a drawing note, and a decorated initial is the wrong register for it.
+   */
+  .lead {
+    font-size: 1.1875rem;
+    line-height: 1.65;
+  }
+  .lead::first-line {
+    font-variant-caps: all-small-caps;
+    font-variant-numeric: lining-nums;
+    letter-spacing: 0.045em;
+    color: var(--fg);
+  }
+
   /* Prose takes old-style figures: they belong in a sentence, lining figures belong in a table. */
   .prose-fig {
     font-variant-numeric: oldstyle-nums proportional-nums;

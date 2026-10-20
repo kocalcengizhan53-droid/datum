@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react"
 
 import { PlateFrame } from "@/components/three/plates/PlateFrame"
+import { PLATE_TITLES } from "@/lib/plates"
 import model from "@/lib/ar-model.json"
 
 /**
@@ -93,7 +94,7 @@ export function ArPlate({ plate }: { plate: number }) {
   return (
     <PlateFrame
       plate={plate}
-      type={`model · ${model.scale}`}
+      type={PLATE_TITLES.ar}
       hint={onDevice ? "tap" : "scan"}
       caption={
         onDevice

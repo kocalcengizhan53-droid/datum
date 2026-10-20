@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 
 import { PlateFrame } from "@/components/three/plates/PlateFrame"
+import { PLATE_TITLES } from "@/lib/plates"
 import { FINS, MASSING } from "@/lib/massing"
 
 /**
@@ -148,7 +149,7 @@ export function SectionStudy({ caption, plate }: { caption: React.ReactNode; pla
     MIN_X + ((clientX - box.left) / box.width) * (MAX_X - MIN_X)
 
   return (
-    <PlateFrame plate={plate} type="section · the cut moves" caption={caption} hint="drag">
+    <PlateFrame plate={plate} type={PLATE_TITLES.section} caption={caption} hint="drag">
       <div
         ref={surface}
         role="slider"

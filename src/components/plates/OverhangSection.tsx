@@ -4,6 +4,7 @@ import { useState } from "react"
 
 import { DimSlider } from "@/components/sheet/DimSlider"
 import { PlateFrame } from "@/components/three/plates/PlateFrame"
+import { PLATE_TITLES } from "@/lib/plates"
 import { MASSING, hourLabel, sunPosition } from "@/lib/massing"
 
 /**
@@ -78,7 +79,7 @@ export function OverhangSection({ plate }: { plate: number }) {
   return (
     <PlateFrame
       plate={plate}
-      type="west elevation · section"
+      type={PLATE_TITLES.overhang}
       hint="move the hour"
       caption={
         asBuilt

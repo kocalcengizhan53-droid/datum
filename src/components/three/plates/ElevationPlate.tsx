@@ -5,6 +5,7 @@ import { Canvas } from "@react-three/fiber"
 import { FINS, MASSING } from "@/lib/massing"
 import { Model } from "@/components/three/plates/Model"
 import { PlateFrame } from "@/components/three/plates/PlateFrame"
+import { PLATE_TITLES } from "@/lib/plates"
 
 /**
  * A true elevation, locked.
@@ -73,7 +74,7 @@ export function ElevationPlate({ plate, refersTo }: { plate: number; refersTo: n
   return (
     <PlateFrame
       plate={plate}
-      type="south elevation · 1:200"
+      type={PLATE_TITLES.elevation}
       caption={`The screen reads as a surface here and as a depth in Plate ${String(refersTo).padStart(2, "0")}. An elevation cannot show what a fin is for, which is the argument.`}
     >
       <div className="relative aspect-[16/9] w-full">

@@ -3,6 +3,7 @@
 import { useState } from "react"
 
 import { PlateFrame } from "@/components/three/plates/PlateFrame"
+import { PLATE_TITLES } from "@/lib/plates"
 import { CLUSTER_BAND_MM, PLINTHS } from "@/data/plinths"
 import { COVER_HEIGHT_MM, MODE, SURVEY } from "@/lib/survey"
 
@@ -41,7 +42,7 @@ export function PlinthSurvey({ plate }: { plate: number }) {
   return (
     <PlateFrame
       plate={plate}
-      type={`survey · ${SURVEY.total} buildings`}
+      type={PLATE_TITLES.survey}
       hint="press a building"
       caption={`Building ${selected.id}, completed ${selected.completed}. ${selected.heightMm} mm, for ${selected.reason}. The height is already in the model ${STAGE_LABEL[selected.earliest].toLowerCase()}. Ramp ${RAMP_LABEL[selected.ramp]}${selected.rampAddedAfterPlanning ? ", added after planning" : ""}.`}
     >

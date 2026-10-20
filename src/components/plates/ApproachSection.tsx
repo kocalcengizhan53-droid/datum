@@ -4,6 +4,7 @@ import { useState } from "react"
 
 import { DimSlider } from "@/components/sheet/DimSlider"
 import { PlateFrame } from "@/components/three/plates/PlateFrame"
+import { PLATE_TITLES } from "@/lib/plates"
 import { PLINTHS } from "@/data/plinths"
 import {
   APPROACH,
@@ -156,7 +157,7 @@ export function ApproachSection({ plate }: { plate: number }) {
   return (
     <PlateFrame
       plate={plate}
-      type="approach · section at 1:1 both axes"
+      type={PLATE_TITLES.approach}
       hint="drag the height"
       caption={
         overflows
