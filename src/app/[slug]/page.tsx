@@ -75,7 +75,18 @@ export default async function ArticlePage({ params }: PageProps<"/[slug]">) {
         </header>
 
         <div className="grid gap-x-12 py-12 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]">
-          <aside className="border-rule mb-10 h-fit border-b pb-10 lg:sticky lg:top-10 lg:mb-0 lg:border-b-0 lg:pb-0">
+          <aside
+            /*
+             * Last on a phone, beside the text on a sheet.
+             *
+             * In one column the gutter came first, so a reader on a phone scrolled 577px of
+             * issue number, sheet number, byline, date, drawing register and quantity schedule
+             * before reaching the first sentence — the apparatus in front of the article it
+             * annotates. It is reference material; it goes at the back when there is only one
+             * column to put it in.
+             */
+            className="border-rule order-last mt-10 h-fit border-t pt-10 lg:order-none lg:mt-0 lg:border-t-0 lg:pt-0 lg:sticky lg:top-10"
+          >
             <TitleBlock
               article={article}
               blocks={body}
