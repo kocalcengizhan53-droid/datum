@@ -154,6 +154,23 @@ for (const view of views) {
     if (richest < 24) problems.push(`${label}: no canvas on the page is lit (best ${richest} tones)`)
   }
 
+  /*
+   * Every plate on a page is the same width.
+   *
+   * A floated sidenote shrink-wraps a block formatting context, and PlateFrame carries
+   * overflow-hidden, so two pages were printing plates at 616 and 896 pixels one under the
+   * other. Two widths on one sheet reads as a bug, not as a margin.
+   */
+  const plateWidths = await page.evaluate(() =>
+    [...document.querySelectorAll("figure[id^=plate-]")].map((el) =>
+      Math.round(el.getBoundingClientRect().width),
+    ),
+  )
+  const distinct = [...new Set(plateWidths)]
+  if (distinct.length > 1) {
+    problems.push(`${label}: plates at ${distinct.join(" and ")} px on one page`)
+  }
+
   if (offsite.length) {
     problems.push(`${label}: ${offsite.length} off-site request(s), first ${offsite[0].slice(0, 90)}`)
   }

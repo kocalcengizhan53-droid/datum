@@ -342,46 +342,65 @@ h3,
  * prose is simply set. Nothing here touches opacity on text, so no paragraph can ever be
  * invisible — the failure mode the old wrapper had by construction.
  */
+/*
+ * Where the drawing animations actually play.
+ *
+ * Every range here was keyed to `entry`, which for a one-pixel rule is the instant it crosses
+ * the bottom edge of the window. Swept in 60px steps down a 4,200px article, eighteen frames
+ * were caught mid-draw and every single one had its element between 897 and 1008 pixels down a
+ * 1000-pixel window. The motion was written, it completed, the suite confirmed it completed —
+ * and no reader has ever seen a frame of it, because it was all over before the line reached
+ * the part of the screen anyone is looking at.
+ *
+ * Keyed to `cover` instead, the percentage is the element's progress across the whole window:
+ * at cover 0% it sits at the bottom edge, at cover 100% it has left the top. The ranges start
+ * around 30% because the easing is ease-out-expo, which spends most of its travel in the
+ * first part of the range: keyed from 12% the visible movement was still over by 860 pixels
+ * down. They end by about 48%, which is a little above the middle of the window, so a rule
+ * is always finished by the time it reaches the position you would stop and read at. Keyed
+ * later than that the motion is more visible and a reader who stops mid-scroll is left
+ * looking at a line that is permanently two-thirds drawn.
+ */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     /* A rule that draws from the margin across the sheet. */
     .draw-x {
       animation: draw-x 900ms var(--ease-out-expo) both;
       animation-timeline: view();
-      animation-range: entry 0% cover 18%;
+      animation-range: cover 28% cover 48%;
     }
     /* A dimension string: the line extends, then the figure arrives at the end of it. */
     .draw-dim {
       animation: draw-x 620ms var(--ease-out-expo) both;
       animation-timeline: view();
-      animation-range: entry 2% cover 20%;
+      animation-range: cover 28% cover 46%;
     }
     .draw-dim-label {
       animation: dim-label 420ms var(--ease-out-expo) both;
       animation-timeline: view();
-      animation-range: entry 10% cover 24%;
+      animation-range: cover 36% cover 50%;
     }
     /*
      * A dimension in the running text draws like one on a sheet: the rule runs out under the
-     * figure, then the extension ticks rise at each end. Short and late in the range, because a
-     * paragraph holds several and a slow draw on each would turn reading into waiting.
+     * figure, then the extension ticks rise at each end. Short, because a paragraph holds
+     * several and a slow draw on each would turn reading into waiting.
      */
     .dim {
       animation: dim-rule 420ms var(--ease-out-expo) both;
       animation-timeline: view();
-      animation-range: entry 8% cover 22%;
+      animation-range: cover 30% cover 48%;
     }
     .dim::before,
     .dim::after {
       animation: dim-tick 260ms var(--ease-out-expo) both;
       animation-timeline: view();
-      animation-range: entry 18% cover 26%;
+      animation-range: cover 38% cover 52%;
     }
     /* A section mark drops down its leader. */
     .draw-y {
       animation: draw-y 700ms var(--ease-out-expo) both;
       animation-timeline: view();
-      animation-range: entry 0% cover 20%;
+      animation-range: cover 30% cover 48%;
     }
   }
 }

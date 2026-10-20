@@ -93,7 +93,7 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
 
           case "pull":
             return (
-              <figure key={i} className="my-12 max-w-[62ch]">
+              <figure key={i} className="my-12 clear-right max-w-[62ch]">
                 <span aria-hidden="true" className="bg-sun/60 draw-x block h-px w-2/3 origin-left" />
                 <blockquote className="py-5">
                   <p className="text-xl text-balance">

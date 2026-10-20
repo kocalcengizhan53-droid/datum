@@ -63,7 +63,7 @@ export const BODIES: Record<string, readonly Block[]> = {
     },
     {
       type: "p",
-      text: "You can tell, because of what happened next. The depth survived three facade revisions unchanged. The spacing survived a change of structural grid. Both are quantities that should move when the thing around them moves, and neither did, because nobody in the room knew what they were a consequence of. A number with its reasoning stripped off is indistinguishable from a decision, and gets defended like one.",
+      text: "You can tell, because of what happened next. The depth survived three facade revisions unchanged. The spacing survived a change of structural grid. Both are quantities that should move when the thing around them moves, and neither did, because nobody in the room knew what they were a consequence of.",
     },
     {
       type: "pull",
@@ -113,7 +113,7 @@ export const BODIES: Record<string, readonly Block[]> = {
     },
     {
       type: "p",
-      text: "A raised floor does real work. It keeps water out, it hides the servicing that would otherwise occupy a ceiling, it gives a level threshold across a sloping site, and it separates a building from a car park. Every one of those is a reason you can draw. What none of them explains is the clustering. Flood levels do not cluster. Site falls do not cluster. Service zones vary with the system. A number that is the same in nine buildings on nine different sites is not responding to the sites.",
+      text: "A raised floor does real work. It keeps water out, it hides the servicing that would otherwise occupy a ceiling, it gives a level threshold across a sloping site, and it separates a building from a car park. Every one of those is a reason you can draw. What none of them explains is the clustering. Flood levels do not cluster. Site falls do not cluster. Service zones vary with the system.",
     },
     {
       type: "pull",
@@ -171,7 +171,7 @@ export const BODIES: Record<string, readonly Block[]> = {
     },
     {
       type: "p",
-      text: "The first thing you notice is how little of it can come back. Not for technical reasons — the frames in two of the three were sound enough to re-erect — but because nobody can certify a beam whose history is a scan of a 1974 drawing and a surveyor's opinion. The carbon is in the frame. The paperwork is why it goes in a skip.",
+      text: "The first thing you notice is how little of it can come back. Not for technical reasons — the frames in two of the three were sound enough to re-erect — but because nobody can certify a beam whose history is a scan of a 1974 drawing and a surveyor's opinion. ",
     },
     {
       type: "pull",
@@ -254,7 +254,7 @@ export const BODIES: Record<string, readonly Block[]> = {
     { type: "h", text: "Zero is a position" },
     {
       type: "p",
-      text: "Nobody writes down which of those three they chose, because it does not feel like a choice. It feels like setting up the file. But the choice decides what is easy to see later. Dimension from the finished floor and every cut-and-fill question becomes an addition you have to perform; dimension from existing ground and the floor level is the thing that has to justify itself on every sheet. The drawing makes one of those questions free and the other one effortful, and over eighteen months the free question gets asked a hundred times and the effortful one gets asked twice.",
+      text: "Nobody writes down which of those three they chose, because it does not feel like a choice. It feels like setting up the file. But the choice decides what is easy to see later. Dimension from the finished floor and every cut-and-fill question becomes an addition you have to perform; dimension from existing ground and the floor level is the thing that has to justify itself on every sheet.",
     },
     {
       type: "pull",
@@ -308,7 +308,7 @@ export const BODIES: Record<string, readonly Block[]> = {
     },
     {
       type: "p",
-      text: "This sounds reductive until you try to find a building where it is false. The ones that come to mind are the ones with enormous plant, which is to say the ones where the argument was lost and the losses are being paid for in electricity, quietly, for sixty years.",
+      text: "This sounds reductive until you try to find a building where it is false. The ones that come to mind are the ones with enormous plant.",
     },
     {
       type: "dimension",

@@ -4,6 +4,7 @@ import { ViewTransition } from "react"
 
 import { ArticleBody } from "@/components/ArticleBody"
 import { Datum } from "@/components/sheet/Datum"
+import { Colophon } from "@/components/Colophon"
 import { Masthead } from "@/components/Masthead"
 import { ReadingProgress } from "@/components/ReadingProgress"
 import { TitleBlock } from "@/components/sheet/TitleBlock"
@@ -103,6 +104,8 @@ export default async function ArticlePage({ params }: PageProps<"/[slug]">) {
           </Link>
         </nav>
       </article>
+
+      <Colophon />
     </>
   )
 }

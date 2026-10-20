@@ -95,6 +95,62 @@ for (const path of ["/", "/what-the-fins-are-for"]) {
   await page.close()
 }
 
+/*
+ * The motion has to happen where someone is looking.
+ *
+ * Every range in globals.css was keyed to `entry`, which for a one-pixel rule is the instant
+ * it crosses the bottom edge of the window. Swept in 60px steps down a 4,200px article, every
+ * one of eighteen mid-draw frames had its element between 897 and 1008 pixels down a
+ * 1000-pixel window. The lines drew, the check above confirmed they finished, and no reader
+ * ever saw a frame of it — which is indistinguishable from having written no motion at all.
+ *
+ * So: sweep the page and require that the drawing is caught in progress inside the reading
+ * band, not only at the bottom edge.
+ */
+{
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } })
+  await page.goto(BASE + "/the-ninety-centimetre-lie/", { waitUntil: "load" })
+  await page.waitForTimeout(900)
+
+  const height = await page.evaluate(() => document.body.scrollHeight)
+  const tops = []
+  for (let y = 0; y < height; y += 60) {
+    await page.evaluate((v) => scrollTo(0, v), y)
+    await page.waitForTimeout(40)
+    tops.push(
+      ...(await page.evaluate(() => {
+        const found = []
+        for (const el of document.querySelectorAll(".draw-x, .draw-y, .dim")) {
+          const s = getComputedStyle(el)
+          const m = new DOMMatrixReadOnly(s.transform === "none" ? undefined : s.transform)
+          const size = s.backgroundSize
+          const pct = size.includes("%") ? parseFloat(size) : null
+          const partway =
+            (Math.abs(m.a) > 0.02 && Math.abs(m.a) < 0.98) ||
+            (Math.abs(m.d) > 0.02 && Math.abs(m.d) < 0.98) ||
+            (pct !== null && pct > 2 && pct < 98)
+          if (partway) found.push(Math.round(el.getBoundingClientRect().top))
+        }
+        return found
+      })),
+    )
+  }
+
+  const READING_BAND = 760
+  const inBand = tops.filter((t) => t < READING_BAND).length
+  const highest = tops.length ? Math.min(...tops) : null
+  console.log(
+    `\nmotion: ${tops.length} frames caught mid-draw, ${inBand} inside the reading band` +
+      (highest === null ? "" : `, highest at ${highest}px`),
+  )
+  if (!tops.length) problems.push("no drawing animation was ever caught in progress")
+  else if (!inBand)
+    problems.push(
+      `every mid-draw frame sat below ${READING_BAND}px (highest ${highest}px) — the motion plays off the bottom edge`,
+    )
+  await page.close()
+}
+
 await browser.close()
 if (problems.length) {
   console.error("\nproblems:\n  " + problems.join("\n  "))

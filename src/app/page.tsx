@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic"
 
 import { ArticleIndex } from "@/components/ArticleIndex"
+import { Colophon } from "@/components/Colophon"
 import { Masthead } from "@/components/Masthead"
 import { ISSUE } from "@/data/issue"
 
@@ -34,11 +35,7 @@ export default function Page() {
 
       <ArticleIndex />
 
-      <footer className="border-rule mt-auto border-t px-6 py-10 sm:px-10">
-        <p className="mark">
-          Datum · a journal of architecture and the built environment · set in Geist
-        </p>
-      </footer>
+      <Colophon />
     </>
   )
 }

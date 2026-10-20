@@ -23,7 +23,12 @@ export function PlateFrame({
     <figure
       id={`plate-${plate}`}
       /* scroll-mt keeps a jumped-to plate clear of the reading-progress rule at the top. */
-      className="border-rule bg-bg-deep my-12 scroll-mt-8 overflow-hidden rounded-md border"
+      /*
+       * clear-right because overflow-hidden makes this a block formatting context, which
+       * shrink-wraps it beside a floated sidenote. Two pages were printing plates at 616 and
+       * 896 pixels wide, one under the other, which looks like a bug rather than a margin.
+       */
+      className="border-rule bg-bg-deep my-12 clear-right scroll-mt-8 overflow-hidden rounded-md border"
     >
       <div className="border-rule flex items-baseline justify-between border-b px-5 py-2.5">
         <span className="instrument tnum text-sun-ink">Plate {String(plate).padStart(2, "0")}</span>
