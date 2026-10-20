@@ -138,8 +138,16 @@ function Massing() {
 }
 
 /** A slow drift so the scene is alive before anyone touches it, stopped under reduced motion. */
+/*
+ * Where the camera sits, and what it looks at. Module scope so the frame loop can reuse one
+ * scratch vector instead of allocating two per frame.
+ */
+const LOOK_AT = new THREE.Vector3(-3.4, 4.1, 1.2)
+const CAMERA_HOME = new THREE.Vector3(20.5, 13.6, 27)
+const scratch = new THREE.Vector3()
+
 function Camera({ pointer, still }: { pointer: React.RefObject<{ x: number; y: number }>; still: boolean }) {
-  const { camera } = useThree()
+  const { camera, size } = useThree()
   const t = useRef(0)
 
   useFrame((_, delta) => {
@@ -155,11 +163,27 @@ function Camera({ pointer, still }: { pointer: React.RefObject<{ x: number; y: n
      * leaves the type a clean field, which is how a magazine cover is composed: the photograph
      * is taken for the words that go on it.
      */
-    camera.position.lerp(
-      new THREE.Vector3(18.5 + drift + px * 2.4, 12.8 - py * 1.6, 24.5 - drift * 0.5),
-      0.045,
-    )
-    camera.lookAt(-4.2, 6.2, 1.2)
+    /*
+     * Pull back on a narrow sheet.
+     *
+     * fov is vertical, so a portrait viewport keeps the same height and loses width: on a
+     * phone the tower ran off the right edge and the cover was a close-up of a fin screen.
+     * Backing off along the view axis in proportion to how narrow the frame is keeps the whole
+     * massing inside it without changing the composition on a desktop, where the factor is 1.
+     */
+    const aspect = size.width / Math.max(1, size.height)
+    const pull = Math.min(1.95, Math.max(1, 1.45 / aspect))
+
+    scratch.copy(CAMERA_HOME).sub(LOOK_AT).multiplyScalar(pull).add(LOOK_AT)
+    scratch.x += drift + px * 2.4
+    scratch.y -= py * 1.6
+    scratch.z -= drift * 0.5
+
+    camera.position.lerp(scratch, 0.045)
+    // Aimed below the middle of the massing, not above it. At 6.2 the target sat level with
+    // the cantilever and the plinth ran off the bottom edge of the canvas, so the building was
+    // cropped at its own base — which on a cover reads as a mistake rather than as a crop.
+    camera.lookAt(LOOK_AT)
   })
   return null
 }
