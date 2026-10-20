@@ -1,5 +1,6 @@
 "use client"
 
+import { Edges } from "@react-three/drei"
 import * as THREE from "three"
 
 import { FINS, MASSING } from "@/lib/massing"
@@ -26,6 +27,17 @@ export function Model({
   const concrete = palette === "line" ? "#d7d1c4" : "#c3bcae"
   const glass = palette === "line" ? "#8d9299" : "#333942"
   const rough = palette === "line" ? 1 : 0.9
+
+  /*
+   * The line palette gets lines.
+   *
+   * It was flat fills and nothing else, so the elevation read as a bar-chart silhouette — one
+   * value for the whole building and no edge anywhere. An elevation is linework with fill
+   * behind it; without the line it is a shadow of the drawing it is meant to be. drei's Edges
+   * draws the geometry's own outline, so the weight comes from the same boxes as the fill and
+   * cannot disagree with it.
+   */
+  const inked = palette === "line"
   const volumes = only ? MASSING.filter((v) => v.id === only) : MASSING
   const fins = only ? (only === "slab" ? FINS : []) : FINS
 
@@ -41,6 +53,7 @@ export function Model({
             side={clip ? THREE.DoubleSide : THREE.FrontSide}
             clippingPlanes={clip}
           />
+          {inked ? <Edges linewidth={1} threshold={14} color="#2b2720" /> : null}
         </mesh>
       ))}
       {fins.map((fin) => (
@@ -52,6 +65,7 @@ export function Model({
             side={clip ? THREE.DoubleSide : THREE.FrontSide}
             clippingPlanes={clip}
           />
+          {inked ? <Edges linewidth={1} threshold={14} color="#2b2720" /> : null}
         </mesh>
       ))}
     </group>

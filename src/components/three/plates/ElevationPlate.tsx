@@ -148,23 +148,32 @@ export function ElevationPlate({ plate, refersTo }: { plate: number; refersTo: n
 
         {/* Figures as HTML, so they take the instrument voice and stay selectable. */}
         <span
-          className="instrument tnum text-sun-ink absolute -translate-y-1/2"
+          /* Knocked out of its own witness line. The vertical extension ran straight through
+             the 9 and the 0, which on a journal that exists to print derived quantities is the
+             one detail you cannot leave. */
+          className="instrument tnum text-sun-ink bg-bg-deep absolute -translate-y-1/2 px-1"
           style={{ left: pct(fx(DIM_LEFT + 0.15)), top: pct(fy(plinthTop / 2)) }}
         >
           {(plinthTop * 1000).toFixed(0)}
         </span>
         <span
-          className="instrument tnum text-sun-ink absolute -translate-x-1/2"
+          className="instrument tnum text-sun-ink bg-bg-deep absolute -translate-x-1/2 -translate-y-full px-1"
           style={{
             left: pct((fx(FINS[0].position[0]) + fx(FINS[1].position[0])) / 2),
-            top: pct(fy(DIM_INNER - 0.1)),
+            top: pct(fy(DIM_INNER + 0.22)),
           }}
         >
           {(finPitch * 1000).toFixed(0)} c/c
         </span>
         <span
-          className="instrument tnum absolute -translate-x-1/2"
-          style={{ left: pct((fx(buildingLeft) + fx(buildingRight)) / 2), top: pct(fy(DIM_OUTER - 0.2)) }}
+          /*
+           * Above its line, like every dimension figure on every drawing, and above the frame's
+           * bottom edge. Set below the line it sat seven pixels past the stage at 1440 and
+           * fourteen at 390, so overflow-hidden sliced the overall width of the building in
+           * half — the cruellest possible place for this journal to lose a number.
+           */
+          className="instrument tnum bg-bg-deep absolute -translate-x-1/2 -translate-y-full px-1"
+          style={{ left: pct((fx(buildingLeft) + fx(buildingRight)) / 2), top: pct(fy(DIM_OUTER + 0.22)) }}
         >
           {((buildingRight - buildingLeft) * 1000).toFixed(0)}
         </span>
