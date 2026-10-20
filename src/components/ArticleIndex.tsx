@@ -3,6 +3,7 @@ import { ViewTransition } from "react"
 
 import { BODIES } from "@/data/bodies"
 import { ARTICLES, readingMinutes } from "@/data/issue"
+import { PlateGlyph } from "@/components/sheet/PlateGlyph"
 import { plateRegister } from "@/lib/plates"
 
 /**
@@ -24,7 +25,7 @@ export function ArticleIndex() {
             <li key={article.slug} className="border-rule border-b last:border-0">
               <Link
                 href={`/${article.slug}`}
-                className="group grid gap-x-12 gap-y-4 py-9 lg:grid-cols-[minmax(0,9rem)_minmax(0,1fr)_minmax(0,18rem)]"
+                className="group grid gap-x-12 gap-y-4 py-9 lg:grid-cols-[minmax(0,9rem)_minmax(0,34rem)_minmax(0,1fr)_minmax(0,17rem)]"
               >
                 <div className="flex h-fit items-baseline gap-4">
                   <span className="instrument tnum">{String(index + 1).padStart(2, "0")}</span>
@@ -43,6 +44,19 @@ export function ArticleIndex() {
                   <p className="mark mt-4">
                     {article.author} · {readingMinutes(article.slug)} min
                   </p>
+                </div>
+
+                {/*
+                  The first plate, in miniature. The register below says what the drawings are
+                  called; this says what they look like, which is the question a reader
+                  scanning an issue is actually asking.
+                */}
+                <div className="hidden h-fit items-end lg:flex lg:justify-end">
+                  {register.length ? (
+                    <div className="w-[180px] opacity-80 transition-opacity duration-300 group-hover:opacity-100">
+                      <PlateGlyph kind={register[0].kind} />
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="lg:border-rule h-fit lg:border-l lg:pl-6">

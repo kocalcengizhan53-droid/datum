@@ -129,7 +129,7 @@
   --text-4xl: 3.5rem;
   --text-4xl--line-height: 1;
   --text-4xl--letter-spacing: -0.032em;
-  --text-cover: clamp(3rem, 1.2rem + 7.4vw, 8.5rem);
+  --text-cover: clamp(2.75rem, 0.9rem + 8.4vw, 10.5rem);
   --text-cover--line-height: 0.88;
   --text-cover--letter-spacing: -0.042em;
 
