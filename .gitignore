@@ -52,3 +52,6 @@ out/
 !.dev.vars.example
 
 !.env.example
+
+# Lighthouse and axe gate reports
+qa-output/

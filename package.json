@@ -5,7 +5,7 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev --port 3300",
-    "start": "npx --yes serve@latest out -l 3300",
+    "start": "npx --yes serve@14.2.6 out -l 3300",
     "lint": "eslint",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
@@ -15,7 +15,9 @@
     "build:ar": "node scripts/build-ar.mjs",
     "posters": "node scripts/cover-posters.mjs",
     "prebuild": "npm run build:ar",
-    "deploy": "npm run build && wrangler pages deploy out --project-name=datum-journal --branch=main"
+    "deploy": "npm run build && wrangler pages deploy out --project-name=datum-journal --branch=main",
+    "qa:axe": "node qa/axe.mjs",
+    "qa:lighthouse": "node qa/lighthouse.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
@@ -36,6 +38,7 @@
     "@types/react-dom": "^19",
     "@types/three": "^0.186.0",
     "@vitejs/plugin-react-swc": "^4.3.3",
+    "axe-core": "^4.14.0",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
