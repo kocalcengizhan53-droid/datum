@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Datum — editing screen</title>
+    <script src="/admin/repo-files.js"></script>
+  </head>
+  <body>
+    <script src="https://unpkg.com/decap-cms@3.16.3/dist/decap-cms.js"></script>
+    <script>
+      // The journal's own tags, as buttons in the editor's + menu, written back exactly as the
+      // site reads them. Attributes stay strings: the site compiles MDX with JavaScript blocked.
+      const PLATES = ["section", "elevation", "ar", "levels", "approach", "programme", "overhang", "survey"]
+      const wrap = (id, label, tag) =>
+        CMS.registerEditorComponent({
+          id,
+          label,
+          fields: [{ name: "text", label: "Text", widget: "text" }],
+          pattern: new RegExp(`^<${tag}>([\\s\\S]*?)</${tag}>$`),
+          fromBlock: (m) => ({ text: m[1] }),
+          toBlock: (d) => `<${tag}>${d.text ?? ""}</${tag}>`,
+          toPreview: (d) => `<blockquote>${d.text ?? ""}</blockquote>`,
+        })
+      CMS.registerEditorComponent({
+        id: "plate",
+        label: "Plate",
+        fields: [
+          { name: "kind", label: "Kind", widget: "select", options: PLATES },
+          { name: "cut", label: "Section cut (metres east of the datum, optional)", widget: "string", required: false },
+          { name: "caption", label: "Caption", widget: "text", required: false },
+        ],
+        pattern: /^<Plate kind="(\w+)"(?: cut="([\d.-]+)")?\s*(?:\/>|>([\s\S]*?)<\/Plate>)$/,
+        fromBlock: (m) => ({ kind: m[1], cut: m[2] ?? "", caption: m[3] ?? "" }),
+        toBlock: (d) =>
+          `<Plate kind="${d.kind}"${d.cut ? ` cut="${d.cut}"` : ""}${d.caption ? `>${d.caption}</Plate>` : " />"}`,
+        toPreview: (d) => `<p><strong>Plate · ${d.kind}</strong>${d.caption ? ` — ${d.caption}` : ""}</p>`,
+      })
+      CMS.registerEditorComponent({
+        id: "dimension",
+        label: "Dimension",
+        fields: [
+          { name: "value", label: "Value", widget: "string" },
+          { name: "caption", label: "What it measures", widget: "text" },
+        ],
+        pattern: /^<Dimension value="([^"]*)">([\s\S]*?)<\/Dimension>$/,
+        fromBlock: (m) => ({ value: m[1], caption: m[2] }),
+        toBlock: (d) => `<Dimension value="${d.value}">${d.caption}</Dimension>`,
+        toPreview: (d) => `<p><strong>${d.value}</strong> ${d.caption}</p>`,
+      })
+      // The preview reads like the journal's measure, not a browser default.
+      CMS.registerPreviewStyle(
+        "body{font:18px/1.6 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1b17;max-width:62ch;margin:2rem auto;padding:0 1rem}h1,h2{font-family:system-ui,sans-serif;font-weight:600;letter-spacing:-.01em}blockquote{margin:1.5rem 0;padding-left:1rem;border-left:2px solid #d9a43b;color:#4d4637}",
+        { raw: true }
+      )
+      wrap("aside", "Margin note", "Aside")
+      wrap("pull", "Pull quote", "Pull")
+      wrap("note", "Closing note", "Note")
+    </script>
+  </body>
+</html>

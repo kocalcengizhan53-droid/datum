@@ -11,14 +11,17 @@ import { ISSUE } from "@/data/issue"
  */
 export function Colophon() {
   return (
-    <footer className="border-rule mt-auto border-t">
+    <footer className="mt-auto border-t border-rule">
       <div className="mx-auto flex w-full max-w-[94rem] flex-wrap items-baseline justify-between gap-x-8 gap-y-2 px-6 py-12 sm:px-10">
-        <p className="mark">
-          Datum · a journal of architecture and the built environment · set in Geist
-        </p>
+        <p className="mark">Datum · a journal of architecture and the built environment · set in Geist</p>
         <p className="instrument tnum">
           №{ISSUE.number} · {ISSUE.season} · {ISSUE.theme}
         </p>
+        {/* A plain link: /admin is a static page outside the app, which next/link would try to route. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+        <a href="/admin/" className="mark hover:text-fg">
+          Editing screen (demo) →
+        </a>
       </div>
     </footer>
   )

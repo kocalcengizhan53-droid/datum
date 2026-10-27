@@ -1,0 +1,41 @@
+# The editing screen. The public demo runs on Decap's in-browser test backend: the real posts,
+# loaded from repo-files.js, and nothing saved anywhere but the visitor's tab.
+#
+# For the journal's own editors, replace the backend with GitHub and an OAuth endpoint
+# (a small Cloudflare Worker), and saving opens a commit that the next build publishes:
+#
+#   backend:
+#     name: github
+#     repo: <owner>/datum
+#     branch: main
+#     base_url: https://<your-oauth-worker>.workers.dev
+backend:
+  name: test-repo
+
+site_url: https://datum-journal-62n.pages.dev
+display_url: https://datum-journal-62n.pages.dev
+media_folder: public/media
+public_folder: /media
+
+collections:
+  - name: posts
+    label: Posts
+    label_singular: Post
+    folder: content/posts
+    extension: mdx
+    format: frontmatter
+    create: true
+    slug: "{{slug}}"
+    summary: "{{title}} · {{published}}"
+    sortable_fields: [published, title]
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Kicker, name: kicker, widget: string, hint: "One or two words above the title: Envelope, Ground, Method." }
+      - { label: Standfirst, name: standfirst, widget: text, hint: "The sentence under the title, and the share card's description." }
+      - { label: Author, name: author, widget: string }
+      - { label: Published, name: published, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: Topics, name: tags, widget: list, hint: "Lower case, separated by commas. Each one gets a page." }
+      - label: Body
+        name: body
+        widget: markdown
+        hint: "Quote a measured quantity as [[finDepth]] — the figure comes from the model. Plates, notes and dimensions are in the + menu."

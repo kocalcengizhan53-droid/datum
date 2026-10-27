@@ -55,3 +55,6 @@ out/
 
 # Lighthouse and axe gate reports
 qa-output/
+
+# Generated before each build from content/posts
+public/admin/repo-files.js

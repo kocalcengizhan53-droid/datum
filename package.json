@@ -14,10 +14,11 @@
     "qa": "node qa/shot.mjs && node qa/invisible.mjs && node qa/type.mjs && node qa/ar.mjs && node qa/keyboard.mjs",
     "build:ar": "node scripts/build-ar.mjs",
     "posters": "node scripts/cover-posters.mjs",
-    "prebuild": "npm run build:ar",
+    "prebuild": "npm run build:ar && npm run build:cms",
     "deploy": "npm run build && wrangler pages deploy out --project-name=datum-journal --branch=main",
     "qa:axe": "node qa/axe.mjs",
-    "qa:lighthouse": "node qa/lighthouse.mjs"
+    "qa:lighthouse": "node qa/lighthouse.mjs",
+    "build:cms": "node scripts/build-cms-demo.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
