@@ -1,122 +1,135 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ViewTransition } from "react"
 
-import { ArticleBody } from "@/components/ArticleBody"
-import { Datum } from "@/components/sheet/Datum"
-import { Colophon } from "@/components/Colophon"
-import { Masthead } from "@/components/Masthead"
+import { ArticleMdx } from "@/components/mdx/ArticleMdx"
 import { ReadingProgress } from "@/components/ReadingProgress"
+import { Subscribe } from "@/components/Subscribe"
+import { TagList } from "@/components/TagList"
+import { Datum } from "@/components/sheet/Datum"
 import { TitleBlock } from "@/components/sheet/TitleBlock"
-import { BODIES } from "@/data/bodies"
-import { ARTICLES, ISSUE, readingMinutes } from "@/data/issue"
+import { ISSUE } from "@/data/issue"
+import { SITE, getPost, getPosts, related } from "@/lib/posts"
 
 export function generateStaticParams() {
-  return ARTICLES.map((article) => ({ slug: article.slug }))
+  return getPosts().map((post) => ({ slug: post.slug }))
+}
+
+export async function generateMetadata({ params }: PageProps<"/[slug]">): Promise<Metadata> {
+  const post = getPost((await params).slug)
+  if (!post) return {}
+  return {
+    title: `${post.title} — Datum`,
+    description: post.standfirst,
+    alternates: {
+      canonical: `${SITE}/${post.slug}`,
+      types: { "application/rss+xml": "/feed.xml" },
+    },
+    openGraph: {
+      type: "article",
+      siteName: "Datum",
+      title: post.title,
+      description: post.standfirst,
+      publishedTime: post.published,
+      authors: [post.author],
+      tags: post.tags,
+    },
+  }
 }
 
 export default async function ArticlePage({ params }: PageProps<"/[slug]">) {
   const { slug } = await params
-  const article = ARTICLES.find((a) => a.slug === slug)
-  const body = BODIES[slug]
-  if (!article || !body) notFound()
+  const post = getPost(slug)
+  if (!post) notFound()
 
-  const index = ARTICLES.indexOf(article)
-  const next = ARTICLES[(index + 1) % ARTICLES.length]
-  const minutes = readingMinutes(article.slug)
+  const posts = getPosts()
+  const index = posts.indexOf(post)
+  const next = posts[(index + 1) % posts.length]
+  const more = related(post)
 
   return (
     <>
       <ReadingProgress />
-      <Masthead />
 
-      {/*
-        The page is a sheet, and a sheet has edges.
-
-        This was a 22rem column of grey and a 62ch measure, both pinned left, which left 58% of
-        a wide screen as empty black — the article was a strip of prose with nothing on the page
-        around it. The spread is bounded and centred now, so the space outside it reads as the
-        margin of a sheet rather than as a layout that ran out. Inside, three columns: the title
-        block, the measure, and a margin the sidenotes can occupy.
-      */}
-      <article className="mx-auto w-full max-w-[94rem] px-6 sm:px-10">
-        {/* The sheet declares its level before anything is dimensioned from it. */}
-        <div className="pt-6">
-          <Datum note={`plate set · issue ${ISSUE.number}`} />
-        </div>
-
-        <header className="border-rule grid gap-x-12 gap-y-6 border-b py-12 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]">
-          <div className="flex h-fit items-baseline gap-4">
-            <span className="instrument tnum">{String(index + 1).padStart(2, "0")}</span>
-            <span className="mark">{article.kicker}</span>
+      {/* A bounded sheet: title block, the measure, and a margin the sidenotes can occupy. */}
+      <main>
+        <article className="mx-auto w-full max-w-[94rem] px-6 sm:px-10">
+          <div className="pt-6">
+            <Datum note={`plate set · issue ${ISSUE.number}`} />
           </div>
-          <div>
-            {/*
-              The same name as the index card, so React pairs them and the browser moves one
-              object between the two pages instead of crossfading two. `default="none"` keeps it
-              from animating on every unrelated transition, and the explicit share is required
-              alongside it or the pair silently stops morphing.
-            */}
-            <ViewTransition name={`title-${article.slug}`} share="morph" default="none">
-              <h1 className="max-w-[18ch] text-5xl font-medium text-balance lg:text-6xl">
-                {article.title}
-              </h1>
-            </ViewTransition>
-            {/*
-              The standfirst belongs in the measure, at the head of the thing it introduces,
-              rather than as a third line of grey off to one side. Set larger than the body and
-              against a rule, which is how a magazine marks the difference between the piece and
-              the sentence that sells it.
-            */}
-            <p className="border-rule prose-fig text-fg-muted mt-8 max-w-[46ch] border-t pt-6 text-xl text-pretty">
-              {article.standfirst}
-            </p>
+
+          <header className="grid gap-x-12 gap-y-6 border-b border-rule py-12 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]">
+            <div className="flex h-fit items-baseline gap-4">
+              <span className="instrument tnum">{String(index + 1).padStart(2, "0")}</span>
+              <span className="mark">{post.kicker}</span>
+            </div>
+            <div>
+              {/* Shares a name with the index card, so the title moves between the two pages. */}
+              <ViewTransition name={`title-${post.slug}`} share="morph" default="none">
+                <h1 className="max-w-[18ch] text-5xl font-medium text-balance lg:text-6xl">{post.title}</h1>
+              </ViewTransition>
+              <p className="prose-fig mt-8 max-w-[46ch] border-t border-rule pt-6 text-xl text-pretty text-fg-muted">
+                {post.standfirst}
+              </p>
+              <TagList tags={post.tags} className="mt-6" />
+            </div>
+          </header>
+
+          <div className="grid gap-x-12 py-12 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]">
+            {/* Reference material: beside the text on a wide sheet, after it on a phone. */}
+            <aside className="order-last mt-10 h-fit border-t border-rule pt-10 lg:sticky lg:top-10 lg:order-none lg:mt-0 lg:border-t-0 lg:pt-0">
+              <TitleBlock
+                article={post}
+                blocks={post.blocks}
+                index={index + 1}
+                total={posts.length}
+                minutes={post.minutes}
+                issue={ISSUE}
+              />
+            </aside>
+
+            <ArticleMdx source={post.source} />
           </div>
-        </header>
 
-        <div className="grid gap-x-12 py-12 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]">
-          <aside
-            /*
-             * Last on a phone, beside the text on a sheet.
-             *
-             * In one column the gutter came first, so a reader on a phone scrolled 577px of
-             * issue number, sheet number, byline, date, drawing register and quantity schedule
-             * before reaching the first sentence — the apparatus in front of the article it
-             * annotates. It is reference material; it goes at the back when there is only one
-             * column to put it in.
-             */
-            className="border-rule order-last mt-10 h-fit border-t pt-10 lg:order-none lg:mt-0 lg:border-t-0 lg:pt-0 lg:sticky lg:top-10"
-          >
-            <TitleBlock
-              article={article}
-              blocks={body}
-              index={index + 1}
-              total={ARTICLES.length}
-              minutes={minutes}
-              issue={ISSUE}
-            />
-          </aside>
+          <section aria-labelledby="related" className="border-t border-rule py-10">
+            <h2 id="related" className="mark">
+              Read next
+            </h2>
+            <ul className="mt-4 grid gap-6 md:grid-cols-2">
+              {more.map((p) => (
+                <li key={p.slug}>
+                  <Link href={`/${p.slug}`} className="group block">
+                    <p className="mark">{p.kicker}</p>
+                    <p className="mt-2 text-2xl font-medium transition-colors group-hover:text-sun-ink">{p.title}</p>
+                    <p className="prose-fig mt-2 max-w-[48ch] text-pretty text-fg-muted">{p.standfirst}</p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
 
-          <ArticleBody blocks={body} />
-        </div>
+          <Subscribe />
 
-        <nav className="border-rule border-t py-10">
-          <Link href={`/${next.slug}`} className="group block">
-            <p className="mark">Next in this issue</p>
-            <p className="mt-2 text-2xl font-medium">
-              <span className="group-hover:text-sun-ink transition-colors">{next.title}</span>
-              <span aria-hidden="true" className="text-fg-faint ml-3 inline-block transition-transform group-hover:translate-x-1">
-                →
-              </span>
-            </p>
-          </Link>
-          <Link href="/" className="mark mt-8 inline-block hover:text-fg">
-            ← Back to the issue
-          </Link>
-        </nav>
-      </article>
-
-      <Colophon />
+          <nav aria-label="More from the issue" className="border-t border-rule py-10">
+            <Link href={`/${next.slug}`} className="group block">
+              <p className="mark">Next in this issue</p>
+              <p className="mt-2 text-2xl font-medium">
+                <span className="transition-colors group-hover:text-sun-ink">{next.title}</span>
+                <span
+                  aria-hidden="true"
+                  className="ml-3 inline-block text-fg-faint transition-transform group-hover:translate-x-1"
+                >
+                  →
+                </span>
+              </p>
+            </Link>
+            <Link href="/" className="mark mt-8 inline-block hover:text-fg">
+              ← Back to the issue
+            </Link>
+          </nav>
+        </article>
+      </main>
     </>
   )
 }

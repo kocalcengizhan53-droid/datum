@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest"
 
-import { BODIES } from "@/data/bodies"
+import { getPosts } from "@/lib/posts"
 import { FINS, MASSING } from "@/lib/massing"
 import { QUANTITIES, splitQuantities, type QuantityKey } from "@/lib/quantities"
+
+const BODIES = Object.fromEntries(getPosts().map((p) => [p.slug, p.blocks]))
 
 describe("quantities", () => {
   it("resolves every marker used in every article", () => {
@@ -12,9 +14,7 @@ describe("quantities", () => {
       for (const block of blocks) {
         // Captions included: they render through the same splitter as body text, so a marker in
         // a plate caption has to resolve too.
-        const fields = ("text" in block ? [block.text] : []).concat(
-          "caption" in block ? [block.caption] : [],
-        )
+        const fields = ("text" in block ? [block.text] : []).concat("caption" in block ? [block.caption] : [])
         for (const field of fields) {
           expect(() => splitQuantities(field), `${slug}: ${field.slice(0, 50)}`).not.toThrow()
         }

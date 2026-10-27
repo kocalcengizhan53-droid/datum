@@ -25,6 +25,8 @@ for (const control of CONTROLS) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
   await page.goto(BASE + control.page, { waitUntil: "networkidle" })
   const el = page.locator(`[aria-label*="${control.label}"]`)
+  // The cover's scene and the WebGL plates mount after load; give them the moment they take.
+  await el.first().waitFor({ timeout: 15_000 }).catch(() => {})
 
   if (!(await el.count())) {
     problems.push(`${control.page}: no control labelled "${control.label}"`)

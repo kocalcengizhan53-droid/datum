@@ -284,7 +284,7 @@ await writeFile(path.join(outDir, "datum-axonometric.svg"), axonometricSvg())
  * service, nothing that can be down — which also means it belongs to the sheet rather than
  * sitting on it as a foreign object.
  */
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://datum.pages.dev").replace(/\/$/, "")
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://datum-journal-62n.pages.dev").replace(/\/$/, "")
 /*
  * No trailing slash. The static export serves the canonical page at /slug and answers /slug/
  * with a 308, so a code encoding the slashed form sends every phone through a redirect to
@@ -329,7 +329,25 @@ await writeFile(
     `<g fill="#15130d">${cells.join("")}</g></svg>\n`,
 )
 
-const usdz = await new USDZExporter().parseAsync(scene)
+/*
+ * USDZExporter stamps every zip entry with the time of the build, so each build rewrote a model
+ * that had not changed. Pinning the stamps to 1980-01-01 makes the file a function of the scene.
+ */
+function pinZipTimes(bytes) {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  let end = bytes.byteLength - 22
+  while (end > 0 && view.getUint32(end, true) !== 0x06054b50) end--
+  let entry = view.getUint32(end + 16, true)
+  for (let i = view.getUint16(end + 10, true); i > 0; i--) {
+    const local = view.getUint32(entry + 42, true)
+    view.setUint32(entry + 12, 0x00210000, true) // central record: time 00:00, date 1980-01-01
+    view.setUint32(local + 10, 0x00210000, true) // local header: the same
+    entry += 46 + view.getUint16(entry + 28, true) + view.getUint16(entry + 30, true) + view.getUint16(entry + 32, true)
+  }
+  return bytes
+}
+
+const usdz = pinZipTimes(await new USDZExporter().parseAsync(scene))
 await writeFile(path.join(outDir, "datum-massing.usdz"), Buffer.from(usdz))
 
 const glb = await new GLTFExporter().parseAsync(scene, { binary: true })

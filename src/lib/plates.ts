@@ -1,4 +1,4 @@
-import type { Block } from "@/data/bodies"
+import type { Block } from "@/lib/blocks"
 import { SURVEY } from "@/lib/survey"
 
 /**

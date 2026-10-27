@@ -228,11 +228,13 @@
    * four hundred years — and the paragraph takes a slightly larger size. No drop cap: this
    * journal's voice is a drawing note, and a decorated initial is the wrong register for it.
    */
-  .lead {
+  .lead,
+  .article-body > p:first-of-type {
     font-size: 1.1875rem;
     line-height: 1.65;
   }
-  .lead::first-line {
+  .lead::first-line,
+  .article-body > p:first-of-type::first-line {
     font-variant-caps: all-small-caps;
     font-variant-numeric: lining-nums;
     letter-spacing: 0.045em;

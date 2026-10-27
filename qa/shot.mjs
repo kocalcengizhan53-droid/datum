@@ -37,6 +37,7 @@ const browser = await chromium.launch({
   args: ["--use-gl=angle", "--use-angle=metal", "--enable-unsafe-swiftshader"],
 })
 const problems = []
+let deferred = 0
 
 for (const { path, slug } of PAGES)
 for (const view of views) {
@@ -83,6 +84,28 @@ for (const view of views) {
   })
 
   await page.goto(BASE + path, { waitUntil: "load" })
+
+  /*
+   * The WebGL plates mount when a reader nears them, so a page measured where it loads has
+   * nothing to measure below the fold. Walk the sheet first: every placeholder must turn into
+   * its plate, and at least one must have been waiting — otherwise the deferral is not working.
+   */
+  const pendingAtLoad = await page.locator("[data-plate-pending]").count()
+  for (let y = 0; y < (await page.evaluate(() => document.body.scrollHeight)); y += view.height * 0.8) {
+    await page.evaluate((top) => window.scrollTo(0, top), y)
+    await page.waitForTimeout(120)
+  }
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await page.waitForTimeout(300)
+  const pendingAfter = await page.locator("[data-plate-pending]").count()
+  if (pendingAfter) problems.push(`${label}: ${pendingAfter} plate(s) never mounted`)
+
+  // The cover shows its poster until the scene runs: on idle on a desktop, on request on a phone.
+  const start = page.getByRole("button", { name: "Move the sun" })
+  if (await start.isVisible().catch(() => false)) await start.click()
+  if (await page.locator("[data-scene]").count()) {
+    await page.locator('[data-scene="live"]').waitFor({ timeout: 20_000 }).catch(() => problems.push(`${label}: cover never went live`))
+  }
 
   /*
    * Not every page has WebGL on it any more. Three of the articles are drawn entirely in SVG,
@@ -188,11 +211,13 @@ for (const view of views) {
   if (overflow) problems.push(`${label}: horizontal overflow`)
 
   const reading = lit?.canvases?.map((c) => `${c.bright}/${c.tones}t`).join("  ") ?? "svg only"
-  console.log(`${label.padEnd(18)} ${view.width}x${view.height} — ${reading}`)
+  console.log(`${label.padEnd(18)} ${view.width}x${view.height} — ${reading}${pendingAtLoad ? `  (${pendingAtLoad} deferred)` : ""}`)
+  deferred += pendingAtLoad
   await context.close()
 }
 
 await browser.close()
+if (!deferred) problems.push("no WebGL plate was deferred on any page — the lazy mount is not working")
 if (problems.length) {
   console.error("\nproblems:\n  " + problems.join("\n  "))
   process.exit(1)

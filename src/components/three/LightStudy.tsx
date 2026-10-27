@@ -5,26 +5,12 @@ import { ContactShadows, Environment, Lightformer, Sparkles } from "@react-three
 import { useCallback, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
-import {
-  FINS,
-  GROUND_SIZE,
-  MASSING,
-  hourLabel,
-  sunColour,
-  sunIntensity,
-  sunPosition,
-} from "@/lib/massing"
+import { FINS, GROUND_SIZE, MASSING, hourLabel, sunColour, sunIntensity, sunPosition } from "@/lib/massing"
 
 /**
- * The cover: a massing model with a sun you can move.
- *
- * This journal has no photography, so the illustration has to be the real thing — lit, shadowed
- * and running. Dragging across the scene moves the sun from six in the morning to six at night
- * and the shadows rake across the fins in real time, which is the one interaction an architect
- * would actually perform on a model.
- *
- * The hour lives in a ref and is read inside useFrame. Nothing here re-renders while you drag:
- * the light, the shadow camera and the readout are all written imperatively.
+ * The cover: a massing model with a sun you can drag from six in the morning to six at night.
+ * The hour lives in a ref read inside useFrame, so dragging re-renders nothing — the light, the
+ * shadow camera and the readout are written imperatively.
  */
 
 const START_HOUR = 8.4
@@ -63,15 +49,8 @@ function Sun({ hour }: { hour: React.RefObject<number> }) {
 }
 
 /**
- * The air between the fins.
- *
- * The issue is called Shade and the cover line is "What a building does with the sun", but until
- * now the light was only readable where it landed — a pattern on a wall rather than a volume in a
- * space. Dust in the shafts is how an architectural render shows that, and it is how the fins
- * themselves become legible from the side.
- *
- * Density follows the sun: strongest at the ends of the day when the light rakes through the
- * screen, almost gone at noon when it comes straight down and there are no shafts to catch.
+ * Dust in the light shafts, so the sun reads as a volume and not only where it lands. Densest
+ * when the light rakes through the fins at either end of the day, almost gone at noon.
  */
 function Air({ hour }: { hour: React.RefObject<number> }) {
   const group = useRef<THREE.Group>(null)
@@ -137,6 +116,16 @@ function Massing() {
   )
 }
 
+/** Tells the stage the scene has drawn, so it can fade in over the poster. */
+function Drawn({ onDrawn }: { onDrawn: () => void }) {
+  const frames = useRef(0)
+  useFrame(() => {
+    frames.current += 1
+    if (frames.current === 3) onDrawn()
+  })
+  return null
+}
+
 /** A slow drift so the scene is alive before anyone touches it, stopped under reduced motion. */
 /*
  * Where the camera sits, and what it looks at. Module scope so the frame loop can reuse one
@@ -146,9 +135,16 @@ const LOOK_AT = new THREE.Vector3(-3.4, 4.1, 1.2)
 const CAMERA_HOME = new THREE.Vector3(20.5, 13.6, 27)
 const scratch = new THREE.Vector3()
 
+function widen(lens: THREE.PerspectiveCamera, fov: number) {
+  if (lens.fov === fov) return
+  lens.fov = fov
+  lens.updateProjectionMatrix()
+}
+
 function Camera({ pointer, still }: { pointer: React.RefObject<{ x: number; y: number }>; still: boolean }) {
   const { camera, size } = useThree()
   const t = useRef(0)
+  const placed = useRef(false)
 
   useFrame((_, delta) => {
     if (!still) t.current += delta * 0.055
@@ -156,48 +152,35 @@ function Camera({ pointer, still }: { pointer: React.RefObject<{ x: number; y: n
     const px = pointer.current.x
     const py = pointer.current.y
     /*
-     * Framed so the massing sits in the lower right and the upper left is sky.
-     *
-     * The first framing centred the model and the cover line ran straight across the tower —
-     * legible in neither direction. Looking high and left pushes the subject down and right and
-     * leaves the type a clean field, which is how a magazine cover is composed: the photograph
-     * is taken for the words that go on it.
-     */
-    /*
-     * Pull back on a narrow sheet.
-     *
-     * fov is vertical, so a portrait viewport keeps the same height and loses width: on a
-     * phone the tower ran off the right edge and the cover was a close-up of a fin screen.
-     * Backing off along the view axis in proportion to how narrow the frame is keeps the whole
-     * massing inside it without changing the composition on a desktop, where the factor is 1.
+     * Composed like a magazine cover: the massing low and right, the upper left kept as sky for
+     * the cover line. fov is vertical, so a portrait frame loses width; it backs off a little,
+     * widens the lens, pans toward the model and raises the aim, because there the cover line
+     * sits above the model rather than across it. Backing off further walks into the fog.
      */
     const aspect = size.width / Math.max(1, size.height)
-    const pull = Math.min(1.6, Math.max(1, 1.45 / aspect))
-    /*
-     * Backing off alone made the phone cover a small dim object in a large dark field — the
-     * subject shrank twice over, once to fit the width and again because the composition still
-     * held it low and right for a cover line that on a phone sits above the canvas rather than
-     * across it. So the aim rises as the frame narrows, which drops the massing in frame and
-     * lets it stay large.
-     */
     const narrow = Math.min(1, Math.max(0, (1.45 - aspect) / 0.75))
+    const pull = Math.min(1.6, Math.max(1, 1.45 / aspect))
+    const pan = narrow * 2.2
+    widen(camera as THREE.PerspectiveCamera, 34 + narrow * 7)
 
     scratch.copy(CAMERA_HOME).sub(LOOK_AT).multiplyScalar(pull).add(LOOK_AT)
     scratch.y += narrow * 2.4
-    scratch.x += drift + px * 2.4
+    scratch.x += drift + px * 2.4 + pan
     scratch.y -= py * 1.6
     scratch.z -= drift * 0.5
 
-    camera.position.lerp(scratch, 0.045)
-    // Aimed below the middle of the massing, not above it. At 6.2 the target sat level with
-    // the cantilever and the plinth ran off the bottom edge of the canvas, so the building was
-    // cropped at its own base — which on a cover reads as a mistake rather than as a crop.
-    camera.lookAt(LOOK_AT.x, LOOK_AT.y + narrow * 2.0, LOOK_AT.z)
+    // The first frame starts where the camera rests, so the live scene opens on the same
+    // picture as the poster it fades in over, rather than gliding into place.
+    if (placed.current) camera.position.lerp(scratch, 0.045)
+    else camera.position.copy(scratch)
+    placed.current = true
+    // Aimed below the middle of the massing, so the plinth stays inside the frame.
+    camera.lookAt(LOOK_AT.x + pan, LOOK_AT.y + narrow * 2.0, LOOK_AT.z)
   })
   return null
 }
 
-export function LightStudy() {
+export function LightStudy({ onReady, focusOnReady = false }: { onReady?: () => void; focusOnReady?: boolean }) {
   const hour = useRef(START_HOUR)
   const pointer = useRef({ x: 0, y: 0 })
   const readout = useRef<HTMLSpanElement>(null)
@@ -230,8 +213,7 @@ export function LightStudy() {
     writeHour(START_HOUR)
   }, [writeHour])
 
-  const fromClientX = (clientX: number, box: DOMRect) =>
-    6 + ((clientX - box.left) / box.width) * 12
+  const fromClientX = (clientX: number, box: DOMRect) => 6 + ((clientX - box.left) / box.width) * 12
 
   return (
     <div
@@ -244,11 +226,7 @@ export function LightStudy() {
       aria-valuenow={START_HOUR}
       aria-valuetext={hourLabel(START_HOUR)}
       aria-orientation="horizontal"
-      /*
-       * The cover was pointer-only. Its one interaction — the thing the whole page is built to
-       * invite — could not be reached from a keyboard at all. A quarter of an hour per press,
-       * five minutes with Shift, an hour on Page, and the ends on Home and End.
-       */
+      // A quarter of an hour per arrow, five minutes with Shift, an hour on Page, ends on Home/End.
       onKeyDown={(event) => {
         const step = event.shiftKey ? 1 / 12 : 0.25
         const moves: Record<string, number | "min" | "max"> = {
@@ -266,7 +244,7 @@ export function LightStudy() {
         event.preventDefault()
         writeHour(move === "min" ? 6 : move === "max" ? 18 : hour.current + move)
       }}
-      className="focus-visible:outline-sun relative h-full w-full touch-none"
+      className="relative h-full w-full touch-none focus-visible:outline-sun"
       onPointerMove={(event) => {
         const box = event.currentTarget.getBoundingClientRect()
         pointer.current = {
@@ -306,24 +284,11 @@ export function LightStudy() {
         <Air hour={hour} />
         <ContactShadows position={[0, 0.01, 0]} opacity={0.5} scale={44} blur={2.4} far={9} />
         {/*
-          The environment is built here, not downloaded.
-
-          This was <Environment preset="night" />, which fetches a 1K HDR from raw.githack.com
-          and suspends the entire Canvas subtree until it resolves. Measured on a loaded
-          machine, seven loads in eight showed a black cover — not a degraded scene, nothing at
-          all, because everything inside the Canvas was suspended behind someone else's CDN. On
-          the one page a portfolio gets judged by, in three seconds.
-
-          Two lightformers rendered to a 256px cube give the glazing something to reflect at no
-          network cost. frames={1} bakes it once, because nothing in the environment moves.
+          Built here, not downloaded: a preset HDR from a third-party CDN suspended the whole
+          scene until it arrived. Baked once (frames={1}), since nothing in it moves.
         */}
         <Environment resolution={256} frames={1} environmentIntensity={0.3}>
-          <Lightformer
-            intensity={0.9}
-            color="#5878b4"
-            position={[0, 8, -12]}
-            scale={[24, 12, 1]}
-          />
+          <Lightformer intensity={0.9} color="#5878b4" position={[0, 8, -12]} scale={[24, 12, 1]} />
           <Lightformer
             intensity={0.35}
             color="#2b3340"
@@ -340,35 +305,29 @@ export function LightStudy() {
           />
         </Environment>
         <Camera pointer={pointer} still={reduced} />
+        <Drawn
+          onDrawn={() => {
+            onReady?.()
+            // Started from the stage's button: hand focus on to the control it revealed.
+            if (focusOnReady) surface.current?.focus({ preventScroll: true })
+          }}
+        />
       </Canvas>
 
-      {/* A scrim so the cover line always has ground, whatever the sun is doing behind it. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-2/5"
-        style={{
-          background:
-            "linear-gradient(to bottom, oklch(0.11 0.004 86 / 0.82), oklch(0.11 0.004 86 / 0.45) 42%, transparent)",
-        }}
-      />
-
       {/* The control, over the scene rather than beside it: the sun is part of the picture. */}
-      <div
-        ref={track}
-        className="pointer-events-none absolute right-6 bottom-6 left-6 sm:right-10 sm:left-10"
-      >
+      <div ref={track} className="pointer-events-none absolute right-6 bottom-6 left-6 sm:right-10 sm:left-10">
         <div className="flex items-end justify-between pb-2">
           <span className="instrument">drag anywhere · solar study</span>
-          <span className="tnum text-sun-ink font-mono text-xs">
+          <span className="tnum font-mono text-xs text-sun-ink">
             <span ref={readout}>08:24</span>
           </span>
         </div>
-        <div className="bg-rule-strong relative h-px w-full">
+        <div className="relative h-px w-full bg-rule-strong">
           <span
-            className="bg-sun absolute top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rotate-45"
+            className="absolute top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-sun"
             style={{ left: "var(--at, 20%)" }}
           />
-          <span className="bg-sun/60 absolute inset-y-0 left-0" style={{ width: "var(--at, 20%)" }} />
+          <span className="absolute inset-y-0 left-0 bg-sun/60" style={{ width: "var(--at, 20%)" }} />
         </div>
       </div>
     </div>
