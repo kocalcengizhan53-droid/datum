@@ -32,20 +32,21 @@ function Pull({ children }: { children: ReactNode }) {
   )
 }
 
-type PlateProps = {
-  kind: PlateKind
-  number: number
-  refersTo?: number
-  cut?: number
-  children?: ReactNode
-}
+// MDX attributes arrive as strings (see post-source.ts); the plates take numbers.
+type PlateProps = { kind: PlateKind; number: string; refersTo?: string; cut?: string; children?: ReactNode }
+const num = (value?: string) => (value === undefined ? undefined : Number(value))
 
 /** The drawn plates are light SVG and ship in the page; only the WebGL ones wait to be reached. */
-function Plate({ kind, number, ...rest }: PlateProps) {
+function Plate({ kind, number: n, refersTo, cut, children }: PlateProps) {
+  const number = Number(n)
   switch (kind) {
     case "section":
     case "elevation":
-      return <LazyPlate kind={kind} number={number} {...rest} />
+      return (
+        <LazyPlate kind={kind} number={number} refersTo={num(refersTo)} cut={num(cut)}>
+          {children}
+        </LazyPlate>
+      )
     case "ar":
       return <ArPlate plate={number} />
     case "levels":

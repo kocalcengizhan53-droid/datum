@@ -49,6 +49,10 @@ describe("posts", () => {
       it("compiles: every plate and quantity it names exists", () => {
         expect(() => prepare(post.source)).not.toThrow()
       })
+
+      it("uses no {expressions}, which the compiler drops with JavaScript blocked", () => {
+        expect(prepare(post.source)).not.toMatch(/=\{/)
+      })
     })
   }
 
@@ -73,8 +77,8 @@ describe("prepare", () => {
 
   it("numbers plates in reading order and points the elevation at the section", () => {
     const out = prepare(src)
-    expect(out).toContain('<Plate kind="elevation" number={1} refersTo={2}')
-    expect(out).toContain('<Plate kind="section" number={2}')
+    expect(out).toContain('<Plate kind="elevation" number="1" refersTo="2"')
+    expect(out).toContain('<Plate kind="section" number="2"')
   })
 
   it("marks only the first mention of a quantity as the one the schedule links to", () => {

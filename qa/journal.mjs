@@ -103,6 +103,39 @@ for (const view of [
   await context.close()
 }
 
+/*
+ * Every article with every plate mounted. The MDX compiler runs with JavaScript blocked and drops
+ * `{expression}` attributes without a word, which printed "Plate undefined" and pointed the
+ * elevation at "Plate 00" while every other check passed.
+ */
+const reader = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+const page = await reader.newPage()
+for (const slug of ["what-the-fins-are-for", "the-ninety-centimetre-lie", "concrete-remembers", "drawing-the-datum", "a-thermal-argument"]) {
+  await page.goto(`${BASE}/${slug}`, { waitUntil: "load" })
+  for (let y = 0; y < (await page.evaluate(() => document.body.scrollHeight)); y += 700) {
+    await page.evaluate((top) => window.scrollTo(0, top), y)
+    await page.waitForTimeout(100)
+  }
+  await page.waitForTimeout(600)
+  const text = await page.locator("main").innerText()
+  // Case-insensitive: the plate label is set in capitals, so it read "PLATE UNDEFINED".
+  const junk = /\bundefined\b/i.exec(text) ?? /\bNaN\b/.exec(text)
+  check(`${slug}: no undefined or NaN on the page`, !junk, junk ? text.slice(Math.max(0, junk.index - 40), junk.index + 20) : "")
+  const ids = await page.locator("figure[id^=plate-]").evaluateAll((els) => els.map((e) => e.id))
+  check(`${slug}: plates numbered 1…n in order`, ids.every((id, i) => id === `plate-${i + 1}`), ids.join(" "))
+  const refers = /depth in Plate (\d+)/.exec(text)?.[1]
+  if (refers) {
+    const section = page.locator("figure[id^=plate-]", { has: page.getByRole("slider", { name: /section cut/i }) })
+    check(`${slug}: the elevation points at the section`, (await section.getAttribute("id")) === `plate-${Number(refers)}`, `Plate ${refers}`)
+  }
+}
+await page.goto(`${BASE}/drawing-the-datum`, { waitUntil: "load" })
+const cut = page.getByRole("slider", { name: /section cut/i })
+await cut.scrollIntoViewIfNeeded()
+await cut.waitFor({ timeout: 10_000 }).catch(() => {})
+check("drawing-the-datum: the section opens at the cut its file asks for", (await cut.getAttribute("aria-valuenow")) === "4.6", (await cut.getAttribute("aria-valuenow")) ?? "missing")
+await reader.close()
+
 await browser.close()
 if (problems.length) {
   console.error(`\n${problems.length} failed`)

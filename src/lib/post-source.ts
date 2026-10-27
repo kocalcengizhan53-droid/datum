@@ -12,6 +12,9 @@ import { QUANTITIES } from "@/lib/quantities"
  * elevation at the section it refers to, marks the first mention of each quantity (the one the
  * schedule links to), and fails the build on an unknown quantity or plate. `outline` reads the
  * same source into blocks for the parts of the page that are derived from the text.
+ *
+ * Attributes are strings, never `{expressions}`: the compiler runs with JavaScript blocked, so a
+ * file can be edited by someone who is not a developer, and it drops expressions silently.
  */
 
 const QUANTITY = /\[\[(\w+)\]\]/g
@@ -34,8 +37,8 @@ export function prepare(source: string): string {
   let n = 0
   const numbered = source.replace(PLATE, (_, kind: string) => {
     n += 1
-    const refers = kind === "elevation" && section ? ` refersTo={${section}}` : ""
-    return `<Plate kind="${kind}" number={${n}}${refers}`
+    const refers = kind === "elevation" && section ? ` refersTo="${section}"` : ""
+    return `<Plate kind="${kind}" number="${n}"${refers}`
   })
   const seen = new Set<string>()
   return numbered.replace(QUANTITY, (_, key: string) => {
@@ -82,7 +85,7 @@ export function outline(source: string): Block[] {
         const kind = /kind="(\w+)"/.exec(chunk)?.[1] ?? ""
         checkPlate(kind)
         if (FIGURES.has(kind)) {
-          const cut = /cut=\{([\d.]+)\}/.exec(chunk)?.[1]
+          const cut = /cut="([\d.]+)"/.exec(chunk)?.[1]
           const caption = chunk.endsWith("/>") ? "" : asMarker(inner(chunk, "Plate"))
           return {
             type: "figure",

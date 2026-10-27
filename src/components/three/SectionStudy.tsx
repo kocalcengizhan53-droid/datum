@@ -267,7 +267,7 @@ export function SectionStudy({
         aria-label="Position of the section cut, in metres east of the datum"
         aria-valuemin={MIN_X}
         aria-valuemax={MAX_X}
-        aria-valuenow={START}
+        aria-valuenow={start}
         aria-orientation="horizontal"
         onKeyDown={onKeyDown}
         className="focus-visible:outline-sun relative aspect-[16/9] w-full touch-none"
