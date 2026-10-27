@@ -1,13 +1,8 @@
 "use client"
 
 /*
- * react-hooks/immutability is off for this file.
- *
- * The rule forbids mutating a value returned from a hook. three.js objects exist to be mutated
- * every frame — that is what useFrame is for — and the rule has no model of a render loop
- * running outside React's. The hazard it actually guards against is reading or writing such a
- * value during render, and nothing here does: the plane is constructed once in a useMemo and
- * touched only inside the frame callback.
+ * react-hooks/immutability is off for this file: three.js objects are mutated inside useFrame,
+ * outside React's render, which the rule cannot model. Nothing here is read or written during render.
  */
 /* eslint-disable react-hooks/immutability */
 
@@ -20,16 +15,9 @@ import { PLATE_TITLES } from "@/lib/plates"
 import { FINS, MASSING } from "@/lib/massing"
 
 /**
- * The same building, cut.
- *
- * The cover is a perspective view with a sun you move; this is an orthographic section with a
- * plane you move, which is the other half of how a model is actually interrogated. Making them
- * visually distinct was deliberate: a second perspective render of the same massing would read
- * as the same illustration twice.
- *
- * Capping a clipped solid properly needs stencil work. Here the materials are double-sided
- * instead, so a cut volume shows its inside faces — which is exactly what a sectional model
- * looks like in a studio, and costs one flag rather than a second render pass.
+ * The same building, cut: an orthographic section with a plane you move, the counterpart of the
+ * cover's perspective sun study. Materials are double-sided, so a cut volume shows its inside faces
+ * like a studio sectional model, without a stencil pass.
  */
 
 const MIN_X = -9.5
@@ -43,17 +31,9 @@ const SOLIDS = [
 ]
 
 /**
- * The poché: the face of the material the plane passes through, filled solid.
- *
- * Without it this plate was a section that did not look like one. The geometry was being
- * clipped correctly — the west half of the model really was gone — but the exposed face read
- * as an ordinary wall, because a double-sided box interior is lit like any other surface. A
- * section drawing fills what it cuts, and that fill is the entire convention that lets a
- * reader tell cut material from what is standing behind it.
- *
- * One plane per solid, parked at the cut and hidden when the cut has left the solid. They are
- * not themselves clipped, and they are unlit, so the poché stays a flat value at every hour
- * the key light moves through.
+ * The poché: the material the plane passes through, filled solid — the convention that tells cut
+ * material from what stands behind it. One unlit plane per solid, parked at the cut and hidden
+ * when the cut leaves it, so the fill stays flat whatever the light does.
  */
 function Poche({ cut }: { cut: React.RefObject<number> }) {
   const group = useRef<THREE.Group>(null)
@@ -121,12 +101,8 @@ function Scene({ cut, start }: { cut: React.RefObject<number>; start: number }) 
   // A value, not a ref: the plane object never changes identity, only its constant, and reading
   // a ref during render is both a lint error and the thing that breaks under memoisation.
   /*
-   * The plane keeps what is EAST of the cut, and the camera stands to the west.
-   *
-   * It was the other way round: the clip kept the western half, so the cut face pointed away
-   * from the camera and every frame of this plate was the outside of the remaining solid. The
-   * poché was being drawn the whole time, correctly, on a face nobody could see. A section is
-   * a view of the cut, and the viewer has to be standing in the part that was removed.
+   * The plane keeps what is east of the cut and the camera stands to the west: a section is a view
+   * of the cut, seen from the part that was removed.
    */
   const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(1, 0, 0), -start), [start])
   const clip = useMemo(() => [plane], [plane])
@@ -181,14 +157,7 @@ function Scene({ cut, start }: { cut: React.RefObject<number>; start: number }) 
   )
 }
 
-/*
- * The cut is a prop, not a module constant.
- *
- * Two articles printed this plate and, because START was fixed, they printed pixel-identical
- * drawings with different captions under them. A section is an argument about where you cut;
- * a journal that prints the same cut twice is making that argument once and billing for it
- * twice.
- */
+// The cut is a prop, so two articles can make two different arguments with the same plate.
 export function SectionStudy({
   caption,
   plate,
@@ -222,14 +191,7 @@ export function SectionStudy({
     }
   }, [])
 
-  /*
-   * The cut moves by keyboard as well as by pointer.
-   *
-   * This plate and the cover were pointer-only: no tabIndex, no key handling, no input. The two
-   * best things on the site could not be operated without a mouse, which also means they could
-   * not be operated by anyone driving the page from the keyboard. A coarse step of half a metre
-   * and a fine step of a tenth, with Home and End at the ends, is what a slider owes.
-   */
+  // The cut moves by keyboard too: half a metre per arrow, a tenth with Shift, Home and End at the ends.
   const onKeyDown = (e: React.KeyboardEvent) => {
     const step = e.shiftKey ? 0.1 : 0.5
     const moves: Record<string, number | "min" | "max"> = {
