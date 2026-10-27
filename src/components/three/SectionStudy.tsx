@@ -11,7 +11,7 @@
  */
 /* eslint-disable react-hooks/immutability */
 
-import { Canvas, useFrame, useThree } from "@react-three/fiber"
+import { Canvas, invalidate, useFrame, useThree } from "@react-three/fiber"
 import { useCallback, useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 
@@ -160,12 +160,7 @@ function Scene({ cut, start }: { cut: React.RefObject<number>; start: number }) 
         {FINS.map((fin) => (
           <mesh key={fin.id} position={[...fin.position]}>
             <boxGeometry args={[...fin.size]} />
-            <meshStandardMaterial
-              color="#ddd6c8"
-              roughness={0.9}
-              side={THREE.DoubleSide}
-              clippingPlanes={clip}
-            />
+            <meshStandardMaterial color="#ddd6c8" roughness={0.9} side={THREE.DoubleSide} clippingPlanes={clip} />
           </mesh>
         ))}
         {/* The datum: the line everything in the issue is measured from. */}
@@ -219,6 +214,8 @@ export function SectionStudy({
     // The value a screen reader announces has to move with the drawing, and the drawing is
     // driven imperatively, so the attribute is written here rather than rendered.
     surface.current?.setAttribute("aria-valuenow", cut.current.toFixed(1))
+    // The plate draws on demand: only a moved cut, a resize or the first frame costs a render.
+    invalidate()
     if (readout.current) {
       // Metres east of the datum, which is the number a section mark would carry.
       readout.current.textContent = `${cut.current >= 0 ? "+" : "−"}${Math.abs(cut.current).toFixed(1)} m`
@@ -255,8 +252,7 @@ export function SectionStudy({
     write(start)
   }, [write, start])
 
-  const fromX = (clientX: number, box: DOMRect) =>
-    MIN_X + ((clientX - box.left) / box.width) * (MAX_X - MIN_X)
+  const fromX = (clientX: number, box: DOMRect) => MIN_X + ((clientX - box.left) / box.width) * (MAX_X - MIN_X)
 
   return (
     <PlateFrame plate={plate} type={PLATE_TITLES.section} caption={caption} hint="drag">
@@ -270,7 +266,7 @@ export function SectionStudy({
         aria-valuenow={start}
         aria-orientation="horizontal"
         onKeyDown={onKeyDown}
-        className="focus-visible:outline-sun relative aspect-[16/9] w-full touch-none"
+        className="relative aspect-[16/9] w-full touch-none focus-visible:outline-sun"
         onPointerDown={(e) => {
           dragging.current = true
           e.currentTarget.setPointerCapture(e.pointerId)
@@ -288,6 +284,10 @@ export function SectionStudy({
       >
         <Canvas
           dpr={[1, 1.75]}
+          // Nothing moves unless the cut does, so nothing redraws unless it does. Drawn every frame,
+          // a plate near the top of an article kept a phone's GPU — or a CPU without one — busy
+          // for as long as the page was open.
+          frameloop="demand"
           orthographic
           // Set here rather than mutating the renderer from an effect: useThree returns a hook
           // value, and assigning to it is both a lint error and an unnecessary round trip.
@@ -303,14 +303,14 @@ export function SectionStudy({
         <div ref={track} className="pointer-events-none absolute inset-x-5 bottom-5">
           <div className="flex items-end justify-between pb-2">
             <span className="instrument">drag to move the cut</span>
-            <span className="tnum text-sun-ink font-mono text-xs">
+            <span className="tnum font-mono text-xs text-sun-ink">
               <span ref={readout}>{`${start >= 0 ? "+" : "−"}${Math.abs(start).toFixed(1)} m`}</span>
             </span>
           </div>
-          <div className="bg-rule-strong relative h-px w-full">
-            <span className="bg-sun/60 absolute inset-y-0 left-0" style={{ width: "var(--at, 46%)" }} />
+          <div className="relative h-px w-full bg-rule-strong">
+            <span className="absolute inset-y-0 left-0 bg-sun/60" style={{ width: "var(--at, 46%)" }} />
             <span
-              className="bg-sun absolute top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rotate-45"
+              className="absolute top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-sun"
               style={{ left: "var(--at, 46%)" }}
             />
           </div>

@@ -48,10 +48,7 @@ const finPitch = FINS[1].position[0] - FINS[0].position[0]
  * face. Drawn from the plinth and the tower, the overall dimension stopped short of the building
  * at both ends while claiming to measure it.
  */
-const PARTS: readonly { position: readonly number[]; size: readonly number[] }[] = [
-  ...MASSING,
-  ...FINS,
-]
+const PARTS: readonly { position: readonly number[]; size: readonly number[] }[] = [...MASSING, ...FINS]
 const buildingLeft = Math.min(...PARTS.map((p) => p.position[0] - p.size[0] / 2))
 const buildingRight = Math.max(...PARTS.map((p) => p.position[0] + p.size[0] / 2))
 /*
@@ -79,6 +76,8 @@ export function ElevationPlate({ plate, refersTo }: { plate: number; refersTo: n
     >
       <div className="relative aspect-[16/9] w-full">
         <Canvas
+          // A still drawing: rendered when it mounts or resizes, never again on its own.
+          frameloop="demand"
           orthographic
           dpr={[1, 2]}
           camera={{ position: [CENTRE.x, CENTRE.y, 60], zoom: 50, near: 0.1, far: 220 }}
@@ -109,40 +108,84 @@ export function ElevationPlate({ plate, refersTo }: { plate: number; refersTo: n
         >
           {/* Datum: the line the whole issue is named for, running clear of the building. */}
           <line
-            x1="1.5%" y1={pct(fy(0))} x2="98.5%" y2={pct(fy(0))}
-            stroke="var(--sun)" strokeOpacity="0.45" strokeWidth="1" strokeDasharray="8 6"
+            x1="1.5%"
+            y1={pct(fy(0))}
+            x2="98.5%"
+            y2={pct(fy(0))}
+            stroke="var(--sun)"
+            strokeOpacity="0.45"
+            strokeWidth="1"
+            strokeDasharray="8 6"
           />
 
           {/* Plinth height, dimensioned to the left of the building. */}
-          <line x1={pct(fx(DIM_LEFT))} y1={pct(fy(0))} x2={pct(fx(buildingLeft))} y2={pct(fy(0))}
-            stroke="var(--rule-strong)" strokeWidth="1" />
-          <line x1={pct(fx(DIM_LEFT))} y1={pct(fy(plinthTop))} x2={pct(fx(buildingLeft))} y2={pct(fy(plinthTop))}
-            stroke="var(--rule-strong)" strokeWidth="1" />
-          <line x1={pct(fx(DIM_LEFT + 0.5))} y1={pct(fy(0))} x2={pct(fx(DIM_LEFT + 0.5))} y2={pct(fy(plinthTop))}
-            stroke="var(--sun)" strokeOpacity="0.85" strokeWidth="1" />
+          <line
+            x1={pct(fx(DIM_LEFT))}
+            y1={pct(fy(0))}
+            x2={pct(fx(buildingLeft))}
+            y2={pct(fy(0))}
+            stroke="var(--rule-strong)"
+            strokeWidth="1"
+          />
+          <line
+            x1={pct(fx(DIM_LEFT))}
+            y1={pct(fy(plinthTop))}
+            x2={pct(fx(buildingLeft))}
+            y2={pct(fy(plinthTop))}
+            stroke="var(--rule-strong)"
+            strokeWidth="1"
+          />
+          <line
+            x1={pct(fx(DIM_LEFT + 0.5))}
+            y1={pct(fy(0))}
+            x2={pct(fx(DIM_LEFT + 0.5))}
+            y2={pct(fy(plinthTop))}
+            stroke="var(--sun)"
+            strokeOpacity="0.85"
+            strokeWidth="1"
+          />
 
           {/* Inner line: the fin pitch, with extension lines run down from the fins themselves. */}
           {[FINS[0], FINS[1]].map((fin) => (
-            <line key={fin.id}
-              x1={pct(fx(fin.position[0]))} y1={pct(fy(0))}
-              x2={pct(fx(fin.position[0]))} y2={pct(fy(DIM_INNER - 0.25))}
-              stroke="var(--rule-strong)" strokeWidth="1" />
+            <line
+              key={fin.id}
+              x1={pct(fx(fin.position[0]))}
+              y1={pct(fy(0))}
+              x2={pct(fx(fin.position[0]))}
+              y2={pct(fy(DIM_INNER - 0.25))}
+              stroke="var(--rule-strong)"
+              strokeWidth="1"
+            />
           ))}
           <line
-            x1={pct(fx(FINS[0].position[0]))} y1={pct(fy(DIM_INNER))}
-            x2={pct(fx(FINS[1].position[0]))} y2={pct(fy(DIM_INNER))}
-            stroke="var(--sun)" strokeOpacity="0.9" strokeWidth="1"
+            x1={pct(fx(FINS[0].position[0]))}
+            y1={pct(fy(DIM_INNER))}
+            x2={pct(fx(FINS[1].position[0]))}
+            y2={pct(fy(DIM_INNER))}
+            stroke="var(--sun)"
+            strokeOpacity="0.9"
+            strokeWidth="1"
           />
 
           {/* Outer line: overall width. */}
           {[buildingLeft, buildingRight].map((x) => (
-            <line key={x} x1={pct(fx(x))} y1={pct(fy(0))} x2={pct(fx(x))} y2={pct(fy(DIM_OUTER - 0.25))}
-              stroke="var(--rule-strong)" strokeWidth="1" />
+            <line
+              key={x}
+              x1={pct(fx(x))}
+              y1={pct(fy(0))}
+              x2={pct(fx(x))}
+              y2={pct(fy(DIM_OUTER - 0.25))}
+              stroke="var(--rule-strong)"
+              strokeWidth="1"
+            />
           ))}
           <line
-            x1={pct(fx(buildingLeft))} y1={pct(fy(DIM_OUTER))}
-            x2={pct(fx(buildingRight))} y2={pct(fy(DIM_OUTER))}
-            stroke="var(--rule-strong)" strokeWidth="1"
+            x1={pct(fx(buildingLeft))}
+            y1={pct(fy(DIM_OUTER))}
+            x2={pct(fx(buildingRight))}
+            y2={pct(fy(DIM_OUTER))}
+            stroke="var(--rule-strong)"
+            strokeWidth="1"
           />
         </svg>
 
@@ -151,13 +194,13 @@ export function ElevationPlate({ plate, refersTo }: { plate: number; refersTo: n
           /* Knocked out of its own witness line. The vertical extension ran straight through
              the 9 and the 0, which on a journal that exists to print derived quantities is the
              one detail you cannot leave. */
-          className="instrument tnum text-sun-ink bg-bg-deep absolute -translate-y-1/2 px-1"
+          className="instrument tnum absolute -translate-y-1/2 bg-bg-deep px-1 text-sun-ink"
           style={{ left: pct(fx(DIM_LEFT + 0.15)), top: pct(fy(plinthTop / 2)) }}
         >
           {(plinthTop * 1000).toFixed(0)}
         </span>
         <span
-          className="instrument tnum text-sun-ink bg-bg-deep absolute -translate-x-1/2 -translate-y-full px-1"
+          className="instrument tnum absolute -translate-x-1/2 -translate-y-full bg-bg-deep px-1 text-sun-ink"
           style={{
             left: pct((fx(FINS[0].position[0]) + fx(FINS[1].position[0])) / 2),
             top: pct(fy(DIM_INNER + 0.22)),
@@ -172,7 +215,7 @@ export function ElevationPlate({ plate, refersTo }: { plate: number; refersTo: n
            * fourteen at 390, so overflow-hidden sliced the overall width of the building in
            * half — the cruellest possible place for this journal to lose a number.
            */
-          className="instrument tnum bg-bg-deep absolute -translate-x-1/2 -translate-y-full px-1"
+          className="instrument tnum absolute -translate-x-1/2 -translate-y-full bg-bg-deep px-1"
           style={{ left: pct((fx(buildingLeft) + fx(buildingRight)) / 2), top: pct(fy(DIM_OUTER + 0.22)) }}
         >
           {((buildingRight - buildingLeft) * 1000).toFixed(0)}

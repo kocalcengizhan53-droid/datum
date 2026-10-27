@@ -131,19 +131,17 @@ for (const view of views) {
    * whose flatness is the design. So: every canvas must be PAINTED, and at least one on the page
    * must be RICH, which still catches a shader that failed to compile or a scene left unlit.
    */
-  const lit = !hasCanvas
-    ? null
-    : await page.evaluate(async () => {
-    const all = [...document.querySelectorAll("canvas")]
-    if (all.length === 0) return { ok: false, reason: "no canvas" }
-    const measure = async (el) => {
-      const shot = await new Promise((resolve) => {
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve(el.toDataURL("image/png"))))
-      })
+  /*
+   * Each canvas is measured from a screenshot of the element — the pixels a visitor sees —
+   * not from toDataURL. The plates draw on demand, and toDataURL on a canvas whose last frame
+   * has already been presented returns the cleared buffer: a black plate that nobody sees.
+   */
+  const measure = (png) =>
+    page.evaluate(async (src) => {
       const img = new Image()
       await new Promise((r) => {
         img.onload = r
-        img.src = shot
+        img.src = src
       })
       const c = document.createElement("canvas")
       c.width = 160
@@ -159,11 +157,20 @@ for (const view of views) {
         distinct.add(`${d[i] >> 4}-${d[i + 1] >> 4}-${d[i + 2] >> 4}`)
       }
       return { bright, tones: distinct.size }
-    }
+    }, `data:image/png;base64,${png.toString("base64")}`)
+  const ONLY_CANVAS = "*:not(canvas):not(:has(canvas)) { visibility: hidden !important }"
+  let lit = null
+  if (hasCanvas) {
     const canvases = []
-    for (const el of all) canvases.push(await measure(el))
-    return { ok: true, canvases }
-      })
+    for (const el of await page.locator("canvas").all()) {
+      await el.scrollIntoViewIfNeeded()
+      await page.waitForTimeout(250)
+      // Only the drawing: the labels and readouts laid over it would pass a blank canvas.
+      canvases.push(await measure(await el.screenshot({ style: ONLY_CANVAS })))
+    }
+    await page.evaluate(() => window.scrollTo(0, 0))
+    lit = canvases.length ? { ok: true, canvases } : { ok: false, reason: "no canvas" }
+  }
 
   if (lit === null) {
     // Drawn in SVG. Nothing to sample, and nothing wrong.

@@ -21,7 +21,12 @@ const OUT = "qa-output/lighthouse"
 const PAGES = [
   { name: "cover", path: "/" },
   { name: "fins", path: "/what-the-fins-are-for" },
-  { name: "datum", path: "/drawing-the-datum" },
+  {
+    name: "datum",
+    path: "/drawing-the-datum",
+    budget: { performance: 60 },
+    why: "a WebGL plate in the first screen, drawn in software on a CI runner without a GPU (90 with one)",
+  },
   { name: "tags", path: "/tags" },
 ]
 
@@ -41,8 +46,16 @@ for (const page of PAGES) {
     const file = `${OUT}/${page.name}-${i}.json`
     const r = spawnSync(
       "npx",
-      ["--yes", "lighthouse@13.5.0", BASE + page.path, "--output=json", `--output-path=${file}`, "--quiet", `--chrome-flags=${flags}`],
-      { stdio: "inherit" }
+      [
+        "--yes",
+        "lighthouse@13.5.0",
+        BASE + page.path,
+        "--output=json",
+        `--output-path=${file}`,
+        "--quiet",
+        `--chrome-flags=${flags}`,
+      ],
+      { stdio: "inherit" },
     )
     if (r.status !== 0) {
       failures.push(`${page.path}: Lighthouse exited with ${r.status}`)
@@ -50,7 +63,9 @@ for (const page of PAGES) {
     }
     const report = JSON.parse(readFileSync(file, "utf8"))
     runs.push({
-      scores: Object.fromEntries(Object.entries(report.categories).map(([k, v]) => [k, Math.round((v.score ?? 0) * 100)])),
+      scores: Object.fromEntries(
+        Object.entries(report.categories).map(([k, v]) => [k, Math.round((v.score ?? 0) * 100)]),
+      ),
       tbt: Math.round(report.audits["total-blocking-time"].numericValue),
       benchmark: Math.round(report.environment.benchmarkIndex),
       lcp: Math.round(report.audits["largest-contentful-paint"].numericValue),
@@ -71,7 +86,7 @@ for (const page of PAGES) {
   summary.push(result)
   console.log(
     `${page.path.padEnd(28)} perf ${result.performance}  a11y ${result.accessibility}  bp ${result["best-practices"]}  seo ${result.seo}  ` +
-      `TBT ${result.tbt} ms  LCP ${(result.lcp / 1000).toFixed(1)} s  (median of ${runs.length}, host benchmark ${median(runs.map((r) => r.benchmark))})`
+      `TBT ${result.tbt} ms  LCP ${(result.lcp / 1000).toFixed(1)} s  (median of ${runs.length}, host benchmark ${median(runs.map((r) => r.benchmark))})`,
   )
 }
 
