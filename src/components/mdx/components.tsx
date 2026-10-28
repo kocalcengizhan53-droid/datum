@@ -13,6 +13,7 @@ import { Dim } from "@/components/sheet/Dim"
 import { Dimension as DimensionLine } from "@/components/sheet/Datum"
 import type { PlateKind } from "@/lib/plates"
 import type { QuantityKey } from "@/lib/quantities"
+import { slugify, textOf } from "@/lib/sections"
 
 /**
  * How the journal sets the tags an article is written with. Headings, pull quotes and the
@@ -37,7 +38,17 @@ type PlateProps = { kind: PlateKind; number: string; refersTo?: string; cut?: st
 const num = (value?: string) => (value === undefined ? undefined : Number(value))
 
 /** The drawn plates are light SVG and ship in the page; only the WebGL ones wait to be reached. */
-function Plate({ kind, number: n, refersTo, cut, children }: PlateProps) {
+function Plate(props: PlateProps) {
+  // An anchor before every plate, so the contents' plate rail can open an essay at a drawing.
+  return (
+    <>
+      <span id={`plate-${props.number}`} aria-hidden="true" className="block scroll-mt-20" />
+      <PlateBody {...props} />
+    </>
+  )
+}
+
+function PlateBody({ kind, number: n, refersTo, cut, children }: PlateProps) {
   const number = Number(n)
   switch (kind) {
     case "section":
@@ -67,7 +78,9 @@ export const mdxComponents: MDXComponents = {
   h2: ({ children }) => (
     <section className="mt-14 max-w-[62ch]">
       <span aria-hidden="true" className="draw-x block h-px w-full origin-left bg-rule-strong" />
-      <h2 className="mt-4 mb-5 text-2xl font-medium text-balance">{children}</h2>
+      <h2 id={slugify(textOf(children))} className="mt-4 mb-5 scroll-mt-20 text-2xl font-medium text-balance">
+        {children}
+      </h2>
     </section>
   ),
   a: ({ href = "", children }) =>

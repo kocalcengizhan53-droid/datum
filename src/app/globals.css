@@ -418,6 +418,98 @@ h3,
   }
 }
 
+/*
+ * v3: two more motions, in the same register as the rules. A figure counts up to itself as it
+ * crosses the reading band — the number is in the markup for every reader and machine; only the
+ * picture of it counts — and a drawing wipes on from the margin, the way the rules draw.
+ */
+@property --n {
+  syntax: "<integer>";
+  initial-value: 0;
+  inherits: false;
+}
+.count {
+  counter-reset: n var(--to);
+}
+.count::after {
+  content: counter(n);
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .count {
+      counter-reset: n var(--n);
+      animation: count-up 1ms linear both;
+      animation-timeline: view();
+      animation-range: cover 18% cover 42%;
+    }
+    .wipe {
+      animation: wipe 1ms linear both;
+      animation-timeline: view();
+      animation-range: cover 14% cover 40%;
+    }
+  }
+}
+@keyframes count-up {
+  from {
+    --n: 0;
+  }
+  to {
+    --n: var(--to);
+  }
+}
+@keyframes wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/*
+ * Squared paper under a drawing — a fine grid with a heavier line every fifth square — lit from
+ * the top corner, and the light comes up when the card is pointed at.
+ */
+.sheet-grid {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--bg-deep);
+  background-image:
+    radial-gradient(120% 90% at 100% 0%, oklch(0.82 0.145 66 / 0.08), transparent 55%),
+    linear-gradient(to right, oklch(1 0 0 / 0.075) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(1 0 0 / 0.075) 1px, transparent 1px),
+    linear-gradient(to right, oklch(1 0 0 / 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(1 0 0 / 0.035) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    80px 80px,
+    80px 80px,
+    16px 16px,
+    16px 16px;
+}
+.sheet-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(70% 70% at 88% 6%, oklch(0.82 0.145 66 / 0.2), transparent 62%);
+  opacity: 0;
+  transition: opacity 500ms var(--ease-out-expo);
+}
+.group:hover .sheet-grid::before,
+.group:focus-visible .sheet-grid::before {
+  opacity: 1;
+}
+
+/* A rail that scrolls sideways without a scrollbar stealing the sheet's bottom edge. */
+.rail {
+  scrollbar-width: none;
+  mask-image: linear-gradient(to right, transparent, #000 2rem, #000 calc(100% - 2rem), transparent);
+}
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
 @supports (animation-timeline: scroll()) {
   .progress {
     animation: progress-grow linear both;
