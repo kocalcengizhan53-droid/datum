@@ -18,7 +18,8 @@
     "deploy": "npm run build && wrangler pages deploy out --project-name=datum-journal --branch=main",
     "qa:axe": "node qa/axe.mjs",
     "qa:lighthouse": "node qa/lighthouse.mjs",
-    "build:cms": "node scripts/build-cms-demo.mjs"
+    "build:cms": "node scripts/build-cms-demo.mjs",
+    "cover-video": "node scripts/cover-video.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

@@ -96,3 +96,50 @@ export function hourLabel(hour: number): string {
   const m = Math.round((hour - h) * 60)
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
 }
+
+/** The tower's roof above the ground, the height the cover's shadow readout measures. */
+export const TOWER_TOP = 9.5
+
+/**
+ * Altitude above the horizon and compass bearing (clockwise from north) of the sun at an hour,
+ * derived from the same arc that lights the scene, so the readout and the shadow agree.
+ */
+export function sunAngles(hour: number): { altitude: number; azimuth: number } {
+  const [x, y, z] = sunPosition(hour)
+  const altitude = (Math.atan2(y, Math.hypot(x, z)) * 180) / Math.PI
+  // x is east and z is south, so north is −z.
+  const azimuth = ((Math.atan2(x, -z) * 180) / Math.PI + 360) % 360
+  return { altitude, azimuth }
+}
+
+/** How far a vertical edge of a given height throws its shadow across flat ground, in metres. */
+export function shadowLength(height: number, hour: number): number {
+  return height / Math.tan((sunAngles(hour).altitude * Math.PI) / 180)
+}
+
+/** The eight-point name of a bearing, for a readout a reader can picture. */
+export function compassPoint(azimuth: number): string {
+  const points = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+  return points[Math.round(azimuth / 45) % 8]
+}
+
+type Rgb = readonly [number, number, number]
+const mixRgb = (a: Rgb, b: Rgb, t: number): Rgb => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]
+
+/*
+ * The sky at the zenith and at the horizon: warm low light at either end of the day, a paler,
+ * cooler sky at noon. Morning leans gold and evening leans rose, so the two ends of the sweep do
+ * not read as the same picture mirrored.
+ */
+const SKY = {
+  morning: { zenith: [0.06, 0.11, 0.24], horizon: [0.96, 0.66, 0.4] },
+  noon: { zenith: [0.15, 0.32, 0.57], horizon: [0.74, 0.82, 0.9] },
+  evening: { zenith: [0.1, 0.08, 0.22], horizon: [0.93, 0.5, 0.42] },
+} as const satisfies Record<string, { zenith: Rgb; horizon: Rgb }>
+
+export function skyColours(hour: number): { zenith: Rgb; horizon: Rgb } {
+  const t = Math.max(0, Math.min(1, (hour - 6) / 12))
+  const end = t < 0.5 ? SKY.morning : SKY.evening
+  const noon = Math.sin(t * Math.PI) ** 0.8
+  return { zenith: mixRgb(end.zenith, SKY.noon.zenith, noon), horizon: mixRgb(end.horizon, SKY.noon.horizon, noon) }
+}
