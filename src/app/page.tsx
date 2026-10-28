@@ -3,13 +3,17 @@ import { TagList } from "@/components/TagList"
 import { IssueSpread } from "@/components/home/IssueSpread"
 import { IssueStats } from "@/components/home/IssueStats"
 import { PlateRail } from "@/components/home/PlateRail"
+import { SunHours } from "@/components/home/SunHours"
 import { CoverStage } from "@/components/three/CoverStage"
 import { ISSUE } from "@/data/issue"
 import { getPosts, getTags } from "@/lib/posts"
+import { encodeHours, planSummary, sunHours } from "@/lib/sunlight"
 
 export default function Page() {
   const posts = getPosts()
   const tags = getTags()
+  // Solved at build time: the export carries the study, the phone only paints it.
+  const hours = sunHours()
   return (
     <main>
       <section className="relative">
@@ -36,6 +40,8 @@ export default function Page() {
       <IssueStats posts={posts} />
 
       <IssueSpread posts={posts} />
+
+      <SunHours encoded={encodeHours(hours)} summary={planSummary(hours)} />
 
       <PlateRail posts={posts} />
 

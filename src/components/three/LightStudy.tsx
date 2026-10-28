@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { Camera } from "@/components/three/cover/Camera"
-import { Air, Massing, Sun } from "@/components/three/cover/Model"
+import { Air, Context, Massing, Sun } from "@/components/three/cover/Model"
 import { Sky } from "@/components/three/cover/Sky"
 import { COVER_START_HOUR, Instrument, useInstrument, videoFrameHours } from "@/components/three/cover/Instrument"
 import { hourLabel } from "@/lib/massing"
@@ -192,10 +192,11 @@ export function LightStudy({ onReady, focusOnReady = false }: { onReady?: () => 
       >
         <fog attach="fog" args={["#d9c4a6", 46, 96]} />
         {/* Cool sky fill: the shadow side goes blue, the lit side gold, and the shadow reads. */}
-        <hemisphereLight args={["#86a3d1", "#6b5f4f", 0.7]} />
+        <hemisphereLight args={["#86a3d1", "#7a7366", 0.7]} />
         <Sun hour={hour} colour={sunColour} />
         <Sky hour={hour} sunColour={sunColour} />
         <Massing />
+        <Context />
         <Air hour={hour} />
         <ContactShadows position={[0, 0.02, 0]} opacity={0.45} scale={44} blur={2.4} far={9} />
         {/*

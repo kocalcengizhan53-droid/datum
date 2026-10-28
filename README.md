@@ -4,11 +4,14 @@ An architecture journal where the drawings are live and the numbers are not type
 
 **Live:** <https://datum-journal-62n.pages.dev>
 
+**For your product:** a content site your team runs from files — a blog, magazine, documentation or company site with search, topics, a feed and share cards — where the interactive pieces (3D, live charts, calculators) are part of the article rather than an embed.
+
 ![The cover: a solar study at 08:24 — drag anywhere to move the sun from six in the morning to six at night](docs/cover.webp)
 
 ## In three seconds
 
 - **Drag the sun across the cover**, move the cutting plane through a section, re-base a level schedule, put the building on your desk in AR. Nine plates, every one drawn from the same model.
+- **A sunlight-hours study on the home page:** every half-metre around the building asked every quarter-hour whether it can see the sun, solved at build time by ray-casting against the same massing, with the shadow at any hour laid over it — the analysis an architect runs before placing a bench.
 - **A blog a client can run:** posts are MDX files with front matter; ⌘K search over the full text, topics, related reading, RSS, sitemap and a generated share card per post.
 - **Fast where it counts:** Lighthouse mobile 92 on the 3D cover and on all five articles, total blocking time 10–90 ms, accessibility 100 and axe 0 violations on every page.
 
